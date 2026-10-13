@@ -21,7 +21,7 @@ var MODEL = 'gemini-3.5-flash-lite';
  * 這份後端程式的版本，跟網站（index.html、sw.js）用同一個號碼、一起加一。
  * App 會拿它跟自己比，網站和後端只更新了一邊時，會提醒還差哪一邊。
  */
-var CODE_VERSION = 94;
+var CODE_VERSION = 98;
 
 var T_SHEET = 'Tickets';
 var S_SHEET = 'Shares';
@@ -52,6 +52,9 @@ var MAX_SHARE = 10;   // 一個連結最多幾張票券（截圖是直接嵌在�
  * 設成 0 = 不限時間（但要注意：對方用掉之後又按復原，你這邊就會以為還能用）。
  */
 var SHARE_UNDO_MINUTES = 30;
+
+/** v98 網站產生器：朋友貼上自己的 /exec，下載填好後端網址的網站（setup 的說明會印出來） */
+var KIT_GEN_URL = 'https://tickets-37z.pages.dev/kit.html';
 
 
 /* ══════════════════ 安裝 ══════════════════ */
@@ -97,9 +100,7 @@ function setup() {
     '',
     (P_('ANTHROPIC_KEY') || P_('GEMINI_KEY') || P_('VISION_KEY'))
       ? '辨識引擎：' + engineName_()
-      : '⚠ 還沒設定辨識引擎。到「專案設定 → 指令碼屬性」新增下面其中一支金鑰：\n' +
-        '    GEMINI_KEY     https://aistudio.google.com/apikey （有免費額度）\n' +
-        '    ANTHROPIC_KEY  https://console.claude.com （付費，約每張截圖 NT$0.1）',
+      : '辨識金鑰：還沒設定，等一下接上 App 時，App 會請你貼 Gemini 金鑰（v98 起不用進指令碼屬性）',
     '通知：' + ([
       P_('DISCORD_WEBHOOK') ? 'Discord' : '',
       (P_('LINE_TOKEN') && P_('LINE_USER_ID')) ? 'LINE' : ''
@@ -108,6 +109,7 @@ function setup() {
     remind,
     '',
     '接著：部署 → 新增部署作業 → 網頁應用程式（執行身分：我／存取權：所有人）',
+    '拿到 /exec 網址後，打開網站產生器貼上它，下載你的網站：' + KIT_GEN_URL,
     '──────────────────────────────'
   ];
   Logger.log(lines.join('\n'));
@@ -615,9 +617,19 @@ function dispatch_(req) {
     case 'payeasyPeek':    return payeasyPeek_(req.urls);
     case 'payeasyApply':   return payeasyApply_(req.items);
     case 'balanceRefresh': return balanceRefresh_(req);
-    case 'ping':   return { count: tickets_().length, engine: engineName_(), codeVersion: CODE_VERSION };
-    case 'list':   return { tickets: listTickets_(), members: membersBrief_(), codeVersion: CODE_VERSION };
+    case 'ping':   return { count: tickets_().length, engine: engineName_(), engineReady: engineReady_(), codeVersion: CODE_VERSION };
+    // v98：多帶 SHORT_BASE（App 檢查分享短網址用）、有沒有辨識金鑰、背景辨識的進度
+    case 'list':   return { tickets: listTickets_(), members: membersBrief_(), codeVersion: CODE_VERSION,
+                            shortBase: P_('SHORT_BASE'), engineReady: engineReady_(), engine: engineName_(), queue: queueSummary_() };
     case 'parse':  return parse_(req.image, req.mime, req.filename);
+    case 'upload':       return upload_(req);                   // v98 先上傳、背景辨識
+    case 'recognize':    return recognize_();
+    case 'pending':      return pending_();
+    case 'pendingDone':  return pendingDone_(req.ids, req.discard);
+    case 'pendingRetry': return pendingRetry_(req.ids);
+    case 'pendImage':    return pendImage_(req.id);
+    case 'setEngineKey': return setEngineKey_(req);             // v98 在 App 裡設定
+    case 'setShortBase': return setShortBase_(req);
     case 'save':   return { ticket: saveTicket_(req.ticket) };
     case 'update': return updateOwn_(req.id, req.patch, req.at);
     case 'remove': return removeTicket_(req.id);
@@ -797,7 +809,7 @@ function readRows_(sh, head, idCol) {
 function str_(v) {
   if (v === null || v === undefined) return '';
   if (Object.prototype.toString.call(v) === '[object Date]') {
-    return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    return Utilities.formatDate(v, tz_(), 'yyyy-MM-dd');
   }
   return String(v);
 }
@@ -965,13 +977,19 @@ function fingerprint_(t) {
   return Utilities.base64Encode(d).replace(/[^A-Za-z0-9]/g, '').slice(0, 16);
 }
 
+/**
+ * v98：時區固定用台北（以前跟著 Apps Script 專案設定走，安裝時要記得改時區，忘了改日期就差一天）。
+ * 要用別的時區，在指令碼屬性加 TIMEZONE（例如 Asia/Tokyo）。
+ */
+function tz_() { return P_('TIMEZONE') || 'Asia/Taipei'; }
+
 function today_() {
-  return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  return Utilities.formatDate(new Date(), tz_(), 'yyyy-MM-dd');
 }
 
 /** v88 現在幾點幾分幾秒（HH:mm:ss，跟 today_() 同一個時區） */
 function clock_(d) {
-  return Utilities.formatDate(d || new Date(), Session.getScriptTimeZone(), 'HH:mm:ss');
+  return Utilities.formatDate(d || new Date(), tz_(), 'HH:mm:ss');
 }
 function validClock_(s) {
   return /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(String(s == null ? '' : s));
@@ -1001,31 +1019,48 @@ function parse_(b64, mime, filename) {
   mime = mime || 'image/jpeg';
 
   // 每一段花多久會記在「執行記錄」裡，匯入覺得慢的時候去那邊看是卡在哪
-  var t0 = new Date().getTime(), tDrive = 0, tAi = 0, tDup = 0;
+  var t0 = new Date().getTime();
+  var fileId = saveImage_(b64, mime, filename);
+  var tDrive = new Date().getTime();
 
-  var fileId = '';
+  var r;
   try {
-    var folder = DriveApp.getFolderById(P_('FOLDER_ID'));
-    var name = String(filename || 'ticket').replace(/[\\/:*?"<>|]/g, '_');
-    if (!/\.(jpe?g|png|webp)$/i.test(name)) name += '.jpg';
-    var blob = Utilities.newBlob(Utilities.base64Decode(b64), mime, today_() + '-' + name);
-    fileId = folder.createFile(blob).getId();
-  } catch (e) {
-    throw new Error('存不進雲端硬碟：' + e.message);
-  }
-  tDrive = new Date().getTime();
-
-  var draft;
-  try {
-    draft = parseTicket_(b64, mime);
+    r = draftOf_(b64, mime);
   } catch (e) {
     // 辨識失敗就把剛存的圖丟垃圾桶，重試時才不會留下一堆重複的圖
     try { DriveApp.getFileById(fileId).setTrashed(true); } catch (e2) {}
     throw e;
   }
+
+  Logger.log('匯入計時（秒）：雲端硬碟 ' + ((tDrive - t0) / 1000).toFixed(1) +
+             '　辨識＋查重複 ' + ((new Date().getTime() - tDrive) / 1000).toFixed(1) +
+             '　合計 ' + ((new Date().getTime() - t0) / 1000).toFixed(1) +
+             '　圖片 ' + Math.round(b64.length * 0.75 / 1024) + ' KB');
+
+  return { draft: r.draft, fileId: fileId, duplicate: r.duplicate, dupOf: r.dupOf };
+}
+
+/** 截圖存進「票券截圖」資料夾，回傳檔案 ID（v98 從 parse_ 拆出來，背景辨識的上傳也用這個） */
+function saveImage_(b64, mime, filename) {
+  try {
+    var folder = DriveApp.getFolderById(P_('FOLDER_ID'));
+    var name = String(filename || 'ticket').replace(/[\\/:*?"<>|]/g, '_');
+    if (!/\.(jpe?g|png|webp)$/i.test(name)) name += '.jpg';
+    var blob = Utilities.newBlob(Utilities.base64Decode(b64), mime || 'image/jpeg', today_() + '-' + name);
+    return folder.createFile(blob).getId();
+  } catch (e) {
+    throw new Error('存不進雲端硬碟：' + e.message);
+  }
+}
+
+/**
+ * 辨識一張截圖、套改名規則、查重複（v98 從 parse_ 拆出來）。
+ * 回傳 { draft, duplicate, dupOf }；dupOf = 對上了哪一張、用掉了沒（v76）。
+ */
+function draftOf_(b64, mime) {
+  var draft = parseTicket_(b64, mime);
   if (draft.renamed) draft.note = renamedFlag_(draft);     // v67：套了改名規則，備註記原名（App 確認畫面也看得到）
   draft.fingerprint = fingerprint_(draft);
-  tAi = new Date().getTime();
 
   var dup = false, dupOf = null;
   if (draft.fingerprint) {
@@ -1042,15 +1077,308 @@ function parse_(b64, mime, filename) {
       }
     }
   }
-  tDup = new Date().getTime();
+  return { draft: draft, duplicate: dup, dupOf: dupOf };
+}
 
-  Logger.log('匯入計時（秒）：雲端硬碟 ' + ((tDrive - t0) / 1000).toFixed(1) +
-             '　辨識 ' + ((tAi - tDrive) / 1000).toFixed(1) +
-             '　查重複 ' + ((tDup - tAi) / 1000).toFixed(1) +
-             '　合計 ' + ((tDup - t0) / 1000).toFixed(1) +
-             '　圖片 ' + Math.round(b64.length * 0.75 / 1024) + ' KB');
 
-  return { draft: draft, fileId: fileId, duplicate: dup, dupOf: dupOf };
+/* ══════════════════ 先上傳、背景辨識（v98） ══════════════════
+ *
+ *  以前 App 一張一張「上傳＋辨識」，每張都要等辨識做完才能送下一張，手機得一直停在匯入頁。
+ *  v98 起拆成兩段：
+ *    1. upload：只把縮好的圖存進「票券截圖」，在「Pending」分頁排一列（state = queued），馬上回應。
+ *    2. 辨識在背景跑（recognizeRun_）：App 開著時用 recognize 催它；App 關掉了靠一次性排程 processQueue 接力。
+ *       辨識好的放在 Pending（state = done，result 是草稿），不直接變成票券 ——
+ *       App 列表上方會說「N 張辨識好了」，點進去就是原本的確認頁，存完用 pendingDone 清掉。
+ *  辨識失敗會重試，三次都失敗就是 failed（App 確認頁會列出來，可以重試或不要）。
+ *  Gemini 額度滿了就停下來，留給下一輪。
+ */
+var Q_SHEET = 'Pending';
+var Q_HEAD = ['id', 'fileId', 'filename', 'createdAt', 'state', 'tries', 'error', 'result', 'at'];
+var Q_TRIES = 3;                              // 辨識失敗幾次就放棄
+var Q_RUN_MS = 80 * 1000;                     // App 催一次最多跑多久（網頁請求不能等太久）
+var Q_BG_MS = 4.5 * 60 * 1000;                // 排程接力一次最多跑多久（6 分鐘上限前留緩衝）
+var Q_STALE_MS = 7 * 60 * 1000;               // 「正在辨識」的記號超過這麼久就當作當掉了
+var Q_WATCH_MS = 3 * 60 * 1000;               // App 這麼久以內來看過進度，排程跑完就不另外發 Discord
+var Q_MAX_B64 = 8 * 1024 * 1024;              // 一張圖最大多大（App 會先縮到 1280px，平常 100～300 KB）
+var QSH_ = null;
+
+function qSh_() {
+  if (QSH_) return QSH_;
+  var ss = ss_();
+  var sh = ss.getSheetByName(Q_SHEET);
+  if (!sh) withLock_(function () { sh = ss.getSheetByName(Q_SHEET) || ensureSheet_(ss, Q_SHEET, Q_HEAD); });
+  return (QSH_ = sh || ss.getSheetByName(Q_SHEET));
+}
+function queueRows_() {
+  var sh = ss_().getSheetByName(Q_SHEET);
+  return sh ? readRows_(sh, Q_HEAD, 'id') : [];
+}
+/** 改 Pending 裡某一列（鎖裡面才找列號） */
+function setQueue_(id, patch) {
+  return withLock_(function () {
+    var row = null;
+    queueRows_().some(function (r) { if (r.id === id) { row = r; return true; } return false; });
+    if (!row) return null;
+    Object.keys(patch).forEach(function (k) { row[k] = String(patch[k] == null ? '' : patch[k]); });
+    qSh_().getRange(row._row, 1, 1, Q_HEAD.length).setNumberFormat('@').setValues([rowFrom_(row, Q_HEAD)]);
+    return row;
+  });
+}
+
+/** App 選好照片：存圖、排隊，馬上回應（辨識在背景） */
+function upload_(req) {
+  var b64 = String(req.image || '');
+  if (!b64) throw new Error('沒有收到圖片');
+  if (b64.length > Q_MAX_B64) throw new Error('圖片太大了');
+  var fileId = saveImage_(b64, req.mime || 'image/jpeg', req.filename);
+  var item = { id: 'P' + new Date().getTime().toString(36) + randomToken_(4), fileId: fileId,
+               filename: String(req.filename || '').slice(0, 120), createdAt: new Date().toISOString(),
+               state: 'queued', tries: '0', error: '', result: '', at: '' };
+  withLock_(function () {
+    var sh = qSh_();
+    sh.getRange(sh.getLastRow() + 1, 1, 1, Q_HEAD.length).setNumberFormat('@').setValues([rowFrom_(item, Q_HEAD)]);
+  });
+  scheduleQueue_();
+  return { id: item.id, fileId: fileId };
+}
+
+/** 背景辨識：同一時間只跑一輪（跟上傳區匯入一樣用指令碼屬性當記號） */
+function beginQueue_() {
+  return withLock_(function () {
+    var p = PropertiesService.getScriptProperties();
+    var since = +p.getProperty('QUEUE_BUSY') || 0, now = new Date().getTime();
+    if (since && now - since < Q_STALE_MS) return 0;
+    p.setProperty('QUEUE_BUSY', String(now));
+    return now;
+  });
+}
+function endQueue_(mark) {
+  if (!mark) return;
+  try {
+    withLock_(function () {
+      var p = PropertiesService.getScriptProperties();
+      if (p.getProperty('QUEUE_BUSY') === String(mark)) p.deleteProperty('QUEUE_BUSY');
+    });
+  } catch (e) { Logger.log('清不掉辨識記號（7 分鐘後會自己失效）：' + e.message); }
+}
+
+/** 排隊中的、或「正在辨識」但已經當掉的，下一個要做的（這一輪試過失敗的不馬上再試，留給下一輪） */
+function nextQueued_(rows, now, tried) {
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    if (tried && tried[r.id]) continue;
+    if (r.state === 'queued') return r;
+    if (r.state === 'working' && now - (Date.parse(r.at) || 0) > Q_STALE_MS) return r;
+  }
+  return null;
+}
+function queueCounts_(rows) {
+  var c = { queued: 0, working: 0, done: 0, failed: 0 };
+  rows.forEach(function (r) { if (c[r.state] !== undefined) c[r.state]++; });
+  c.waiting = c.queued + c.working;
+  return c;
+}
+
+/**
+ * 辨識排隊中的截圖，跑到時間用完、沒有了、或額度滿了為止。
+ * 回傳 { busy } 或 { processed, ok, failed, stoppedBy, counts }。
+ */
+function recognizeRun_(budgetMs) {
+  var mark = beginQueue_();
+  if (!mark) return { busy: true, counts: queueCounts_(queueRows_()) };
+  var t0 = new Date().getTime(), processed = 0, ok = 0, failed = 0, stoppedBy = '', tried = {};
+  try {
+    while (true) {
+      if (new Date().getTime() - t0 > budgetMs) { stoppedBy = '時間'; break; }
+      var r = nextQueued_(queueRows_(), new Date().getTime(), tried);
+      if (!r) break;
+      tried[r.id] = 1;
+      setQueue_(r.id, { state: 'working', at: new Date().toISOString() });
+      try {
+        var blob = DriveApp.getFileById(r.fileId).getBlob();
+        var res = draftOf_(Utilities.base64Encode(blob.getBytes()), blob.getContentType() || 'image/jpeg');
+        setQueue_(r.id, { state: 'done', error: '', at: new Date().toISOString(), result: JSON.stringify(res) });
+        ok++;
+      } catch (e) {
+        var msg = String((e && e.message) || e);
+        if (msg.indexOf('額度') >= 0 || msg.indexOf('429') >= 0 || msg.indexOf('流量') >= 0) {
+          setQueue_(r.id, { state: 'queued', at: '' });         // 這張留著，下一輪再來
+          stoppedBy = '額度'; break;
+        }
+        var tries = (+r.tries || 0) + 1;
+        setQueue_(r.id, { state: tries >= Q_TRIES ? 'failed' : 'queued', tries: tries, error: msg.slice(0, 300), at: '' });
+        if (tries >= Q_TRIES) failed++;
+        Logger.log('背景辨識失敗（第 ' + tries + ' 次）：' + r.filename + ' — ' + msg);
+      }
+      processed++;
+      Utilities.sleep(IMPORT_PAUSE_MS);
+    }
+  } finally {
+    endQueue_(mark);
+  }
+  var counts = queueCounts_(queueRows_());
+  if (counts.waiting) scheduleQueue_(stoppedBy === '額度' ? 15 * 60 * 1000 : 0);
+  return { processed: processed, ok: ok, failed: failed, stoppedBy: stoppedBy, counts: counts };
+}
+
+/** App 催辨識（App 開著、在等結果的時候） */
+function recognize_() {
+  return recognizeRun_(Q_RUN_MS);
+}
+
+/**
+ * 一次性排程：App 關掉了也繼續辨識。跑完還有剩就再排一次。
+ * 全部辨識完、這幾分鐘 App 又沒在看，就發一則 Discord 說「辨識好了，打開 App 確認」。
+ */
+function processQueue() {
+  clearQueueTriggers_();
+  var r = recognizeRun_(Q_BG_MS);
+  if (r.busy || !r.processed || r.counts.waiting) return;
+  var seen = +PropertiesService.getScriptProperties().getProperty('QUEUE_SEEN') || 0;
+  if (new Date().getTime() - seen < Q_WATCH_MS) return;
+  try { notifyQueueDone_(r.counts); } catch (e) { Logger.log('辨識完成通知沒送出：' + e.message); }
+}
+function notifyQueueDone_(c) {
+  if (!NOTIFY_APP_IMPORT || !(c.done || c.failed)) return;
+  var head = '票券匯入：' + (c.done ? c.done + ' 張辨識好了' : '') + (c.done && c.failed ? '、' : '') +
+             (c.failed ? c.failed + ' 張沒辨識成功' : '') + '，打開 App 確認後存入';
+  LAST_DISCORD_ = null; LAST_LINE_ = null;
+  postDiscord_({ username: '票券', content: head, allowed_mentions: { parse: [] } });
+  notifyLine_(head);
+}
+
+/** 排一個一次性排程接著辨識（已經排了就不重複排）。排不了也不影響上傳本身。 */
+function scheduleQueue_(delayMs) {
+  try {
+    var has = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'processQueue'; });
+    if (has) return;
+    ScriptApp.newTrigger('processQueue').timeBased().after(Math.max(60 * 1000, delayMs || 0)).create();
+  } catch (e) {
+    Logger.log('排不了背景辨識的排程：' + e.message);
+  }
+}
+function clearQueueTriggers_() {
+  try {
+    ScriptApp.getProjectTriggers().forEach(function (t) {
+      if (t.getHandlerFunction() === 'processQueue') ScriptApp.deleteTrigger(t);
+    });
+  } catch (e) {}
+}
+
+/** App 看進度：每一張的狀態，辨識好的帶草稿 */
+function pending_() {
+  try { PropertiesService.getScriptProperties().setProperty('QUEUE_SEEN', String(new Date().getTime())); } catch (e) {}
+  var rows = queueRows_();
+  var items = rows.map(function (r) {
+    var res = null;
+    try { res = r.result ? JSON.parse(r.result) : null; } catch (e) {}
+    return { id: r.id, fileId: r.fileId, filename: r.filename, createdAt: r.createdAt, state: r.state,
+             tries: +r.tries || 0, error: r.error,
+             draft: res ? res.draft : null, duplicate: !!(res && res.duplicate), dupOf: res ? res.dupOf : null };
+  });
+  var counts = queueCounts_(rows);
+  if (counts.waiting && !(+P_('QUEUE_BUSY'))) scheduleQueue_();      // 萬一排程不見了，補排一個
+  return { items: items, counts: counts };
+}
+
+/** 確認頁存完了：ids 從 Pending 拿掉；discard 裡的是沒存的，截圖丟垃圾桶（還原得回來） */
+function pendingDone_(ids, discard) {
+  ids = (Array.isArray(ids) ? ids : []).map(String);
+  discard = (Array.isArray(discard) ? discard : []).map(String);
+  var want = {}, trash = [];
+  ids.concat(discard).forEach(function (id) { want[id] = 1; });
+  withLock_(function () {
+    var sh = ss_().getSheetByName(Q_SHEET);
+    if (!sh) return;
+    var rows = queueRows_();
+    for (var i = rows.length - 1; i >= 0; i--) {
+      if (!want[rows[i].id]) continue;
+      if (discard.indexOf(rows[i].id) >= 0 && rows[i].fileId) trash.push(rows[i].fileId);
+      sh.deleteRow(rows[i]._row);
+    }
+  });
+  trash.forEach(function (fid) { try { DriveApp.getFileById(fid).setTrashed(true); } catch (e) {} });
+  return { counts: queueCounts_(queueRows_()) };
+}
+
+/** 失敗的再試一次 */
+function pendingRetry_(ids) {
+  (Array.isArray(ids) ? ids : []).map(String).forEach(function (id) {
+    setQueue_(id, { state: 'queued', tries: 0, error: '', at: '' });
+  });
+  scheduleQueue_();
+  return { counts: queueCounts_(queueRows_()) };
+}
+
+/** 列表順便帶的進度（只數，不讀草稿）；還沒用過背景辨識就是 null */
+function queueSummary_() {
+  var sh = ss_().getSheetByName(Q_SHEET);
+  return sh ? queueCounts_(readRows_(sh, Q_HEAD, 'id')) : null;
+}
+
+
+/* ══════════════════ 在 App 裡設定（v98） ══════════════════
+ *
+ *  以前辨識金鑰、SHORT_BASE 都要到 Apps Script「專案設定 → 指令碼屬性」自己新增，名稱打錯一個字就不能用。
+ *  v98 起：金鑰在 App 裡貼（setEngineKey，存之前先問一次 Gemini／Claude 金鑰能不能用）；
+ *  SHORT_BASE 由 App 確認自己網站的分享短網址通了之後告訴後端（setShortBase，已經設過的不會被蓋掉）。
+ *  兩個都只有帶 OWNER_KEY 的請求才改得動。
+ */
+var KEY_RE_ = { gemini: /^AIza[0-9A-Za-z_\-]{30,}$/, claude: /^sk-ant-[0-9A-Za-z_\-]{20,}$/ };
+function engineReady_() { return !!(P_('ANTHROPIC_KEY') || P_('GEMINI_KEY') || P_('VISION_KEY')); }
+
+function setEngineKey_(req) {
+  var engine = String(req.engine || 'gemini').toLowerCase();
+  var key = String(req.apiKey || '').replace(/\s+/g, '');      // 不能叫 key：請求裡的 key 是 OWNER_KEY
+  if (!KEY_RE_[engine]) throw new Error('不認得這個辨識引擎');
+  if (!KEY_RE_[engine].test(key)) {
+    throw new Error(engine === 'gemini' ? '這不像 Gemini 的金鑰（應該是 AIza 開頭的一長串）' : '這不像 Claude 的金鑰（應該是 sk-ant- 開頭）');
+  }
+  var check = checkEngineKey_(engine, key);
+  if (check === 'bad') throw new Error('這支金鑰不能用：請回去重新複製一次（前後不要多複製到空白）');
+  var name = engine === 'gemini' ? 'GEMINI_KEY' : 'ANTHROPIC_KEY';
+  PropertiesService.getScriptProperties().setProperty(name, key);
+  if (PROPS_) PROPS_[name] = key;
+  return { engine: engineName_(), engineReady: true, checked: check === 'ok' };
+}
+/** 'ok' 能用、'bad' 金鑰不對、'unknown' 問不到（網路問題，先存起來） */
+function checkEngineKey_(engine, key) {
+  try {
+    var res = engine === 'gemini'
+      ? UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1&key=' + encodeURIComponent(key), { muteHttpExceptions: true })
+      : UrlFetchApp.fetch('https://api.anthropic.com/v1/models?limit=1', { muteHttpExceptions: true,
+          headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' } });
+    var code = res.getResponseCode();
+    if (code === 200) return 'ok';
+    if (code === 400 || code === 401 || code === 403) return 'bad';
+    return 'unknown';
+  } catch (e) {
+    return 'unknown';
+  }
+}
+
+var SHORT_BASE_RE_ = /^https:\/\/[a-z0-9.-]+(:\d+)?\/s\/$/i;
+function setShortBase_(req) {
+  var base = String(req.base || '').trim();
+  if (!SHORT_BASE_RE_.test(base) || /script\.google|googleusercontent/i.test(base)) throw new Error('分享短網址的格式不對');
+  var cur = P_('SHORT_BASE');
+  if (cur && !req.force) return { shortBase: cur, changed: false };
+  PropertiesService.getScriptProperties().setProperty('SHORT_BASE', base);
+  if (PROPS_) PROPS_.SHORT_BASE = base;
+  return { shortBase: base, changed: true };
+}
+
+/** 確認頁要顯示的截圖（換了一台手機、或 App 重開過，手機裡沒有那張的時候） */
+function pendImage_(id) {
+  var r = null;
+  queueRows_().some(function (x) { if (x.id === String(id)) { r = x; return true; } return false; });
+  if (!r || !r.fileId) return { dataUrl: null };
+  try {
+    var b = DriveApp.getFileById(r.fileId).getBlob();
+    return { dataUrl: 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()) };
+  } catch (e) {
+    return { dataUrl: null };
+  }
 }
 
 /**
@@ -1971,7 +2299,7 @@ function importRun_(budgetMs) {
     if (draft.fingerprint && !seen) prints[draft.fingerprint] = { used: false, usedAt: '' };
 
     draft.id = 'T' + new Date().getTime().toString(36) + Math.random().toString(36).slice(2, 6);
-    draft.createdAt = Utilities.formatDate(f.getDateCreated(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    draft.createdAt = Utilities.formatDate(f.getDateCreated(), tz_(), 'yyyy-MM-dd');
     draft.status = 'active';
     draft.fileId = f.getId();
     draft.source = 'drive';
@@ -2374,7 +2702,7 @@ function ensureReminderTrigger_() {
 
 function createReminderTrigger_() {
   ScriptApp.newTrigger('dailyReminder').timeBased()
-    .atHour(REMIND_HOUR).everyDays(1).inTimezone(Session.getScriptTimeZone()).create();
+    .atHour(REMIND_HOUR).everyDays(1).inTimezone(tz_()).create();
 }
 
 function removeReminderTriggers_() {
@@ -2405,7 +2733,7 @@ function appUrl_() {
  * 回傳有沒有真的發出一則。
  */
 function sendReminder_(preview) {
-  var tz = Session.getScriptTimeZone();
+  var tz = tz_();
   var today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
   var props = PropertiesService.getScriptProperties();
   if (!preview && props.getProperty('REMIND_LAST') === today) {
@@ -2603,7 +2931,7 @@ function makeShare_(ids, days, note, to, opts) {
   } else if (days && +days > 0) {
     var d = new Date();
     d.setDate(d.getDate() + (+days));
-    expiresAt = Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    expiresAt = Utilities.formatDate(d, tz_(), 'yyyy-MM-dd');
   }
 
   // v76：這幾張分享出去、自己這邊也留著（只收這條連結裡真的有的）
@@ -3740,7 +4068,7 @@ function readDiscordReply_(code, text, ms) {
         var at = Date.parse(String(m.timestamp || '').replace(/(\.\d{3})\d+/, '$1'));
         if (!isNaN(at)) {
           r.atMs = at;
-          r.at = Utilities.formatDate(new Date(at), Session.getScriptTimeZone(), 'HH:mm:ss');
+          r.at = Utilities.formatDate(new Date(at), tz_(), 'HH:mm:ss');
         }
       } catch (e) {}
     }
@@ -4000,7 +4328,7 @@ function lagText_(ms) {
   return Math.round(h / 24) + ' 天';
 }
 function mmddhhmm_(ms) {
-  return Utilities.formatDate(new Date(ms), Session.getScriptTimeZone(), 'MM/dd HH:mm');
+  return Utilities.formatDate(new Date(ms), tz_(), 'MM/dd HH:mm');
 }
 /** 補送的那則，最上面加一行說明原本幾點要送 */
 function resendBody_(body, at) {
@@ -4110,7 +4438,7 @@ function logNotify_(ch, what, res) {
     try { list = JSON.parse(p.getProperty('NOTIFY_LOG') || '[]'); } catch (e) {}
     if (!Array.isArray(list)) list = [];
     list.unshift({
-      at: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MM/dd HH:mm:ss'),
+      at: Utilities.formatDate(new Date(), tz_(), 'MM/dd HH:mm:ss'),
       ch: ch, what: String(what || '').slice(0, 60), ok: !!res.ok, code: res.code || 0,
       rx: res.at || '', why: res.ok ? '' : String(res.why || '').slice(0, 160),
       q: res.queued ? 1 : undefined,                  // 沒送到，排進補送了
@@ -4188,7 +4516,7 @@ function ticketLabel_(t) {
 }
 
 function nowText_() {
-  return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MM/dd HH:mm:ss');
+  return Utilities.formatDate(new Date(), tz_(), 'MM/dd HH:mm:ss');
 }
 
 /**
@@ -4254,7 +4582,7 @@ function testNotifyNow_() {
   var hasD = !!P_('DISCORD_WEBHOOK');
   var hasL = !!(P_('LINE_TOKEN') && P_('LINE_USER_ID'));
   if (!hasD && !hasL) throw new Error('後端還沒設定通知管道（指令碼屬性 DISCORD_WEBHOOK）');
-  var sent = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'HH:mm:ss');
+  var sent = Utilities.formatDate(new Date(), tz_(), 'HH:mm:ss');
   var text = '🔔 測試通知｜後端 ' + sent + ' 送出。看一下手機是幾點跳出來的。';
   var ok = hasD ? postDiscord_({ username: '票券', content: text, allowed_mentions: { parse: [] } }, { noQueue: true }) : false;
   if (hasL) ok = notifyLine_(text) || ok;
@@ -4270,7 +4598,7 @@ function testNotifyNow_() {
  * 不會改到任何票券。
  */
 function diagnoseLatency() {
-  var tz = Session.getScriptTimeZone();
+  var tz = tz_();
   var id = P_('SHEET_ID');
   var lines = ['', '───────── 延遲診斷 ─────────'];
   function sec(ms) { return (ms / 1000).toFixed(2) + ' 秒'; }

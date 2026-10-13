@@ -6,23 +6,25 @@
  *  「Sorry, unable to open the file at this time」那張 Drive 錯誤頁。
  *
  *  後端網址（/exec）從哪裡來：
- *    1. Cloudflare Pages 專案的「Settings → Variables and Secrets」裡的 EXEC_URL（建議，更新網站不用改檔）
- *    2. 沒設的話，用下面這一行
+ *    1. 下面那一行 EXEC：v98 起用「網站產生器」下載的網站已經填好了，什麼都不用做
+ *    2. Cloudflare Pages 專案「設定 → 變數與機密」裡的 EXEC_URL（英文介面：Settings → Variables and Secrets）
+ *  兩個都有的話用 EXEC_URL；EXEC_URL 格式不對（多了引號、少了 /exec）就退回用檔案裡填好的（v98）。
  *  換部署（重新部署成新版本不用改；重建部署才要）就改其中一個。
  *
  *  /relay/discord（v57）：Google 的伺服器被 Discord 擋掉時，後端改從這裡轉送通知。
  *  每一則都會先回頭問後端「這一則真的是你剛剛要送的嗎？」（relayCheck），對得上才送，
  *  所以別人沒辦法拿它來亂發。
  */
-// 建議用 Cloudflare 的 EXEC_URL 設定（見安裝說明），這一行就不用改；真的要改，把引號裡的字換成你的 /exec 網址
+// 用網站產生器下載的網站，這裡已經填好你的 /exec 網址；自己改的話，把引號裡的字換成你的 /exec 網址
 const EXEC = '在這裡貼上你的 /exec 網址';
 
 const TOKEN_RE = /^\/s\/([A-Za-z0-9_-]{3,64})\/?$/;
 const EXEC_RE = /^https:\/\/script\.google\.com\/.+\/exec$/;
 
 // 還沒設定後端網址時，直接講清楚，不要丟出看不懂的錯誤
-const NOT_SET = '分享連結還沒設定好：請到 Cloudflare Pages 專案的「Settings → Variables and Secrets」新增 EXEC_URL，' +
-  '值是你的 Apps Script /exec 網址，存檔後再重新上傳一次網站。';
+const NOT_SET = '分享連結還沒設定好：網站還不知道你的後端網址。最簡單的做法：打開 App「設定 → 右上角鈴鐺 → 分享短網址」' +
+  '按「下載填好的網站」，再到 Cloudflare 你的專案右上角「建立部署」把 web 資料夾拖進去。' +
+  '或是到專案「設定 → 變數與機密」新增 EXEC_URL（值是你的 /exec 網址），儲存後再「建立部署」一次。';
 
 // 只轉送到 Discord 的 webhook
 const HOOK_RE = /^https:\/\/(canary\.|ptb\.)?(discord|discordapp)\.com\/api\/webhooks\/\d+\/[A-Za-z0-9_-]+$/;
@@ -31,8 +33,8 @@ const HOOK_RE = /^https:\/\/(canary\.|ptb\.)?(discord|discordapp)\.com\/api\/web
 const KIT_NAME = '票券-自己架一套.zip';
 
 function execOf(env) {
-  const v = String((env && env.EXEC_URL) || EXEC || '').trim();
-  return EXEC_RE.test(v) ? v : '';
+  const a = String((env && env.EXEC_URL) || '').trim(), b = String(EXEC || '').trim();
+  return EXEC_RE.test(a) ? a : (EXEC_RE.test(b) ? b : '');     // v98：EXEC_URL 設錯了就退回檔案裡填好的
 }
 
 /** 原樣回傳，只多加幾個標頭 */

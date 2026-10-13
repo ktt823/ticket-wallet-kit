@@ -562,14 +562,31 @@ body[data-selecting="1"] .tw > .tick{display:grid}
 .shot-hint{font-size:12.5px;color:var(--ink-3);text-align:center;margin:8px 0 0}
 .shot-skel{height:220px;display:grid;place-items:center;color:var(--ink-3);font-size:13px}
 
-.d-ticket{margin:0 0 14px}
+/* v97 詳情頁上面的票卡：跟列表的精簡卡片一樣大（以前大字版約 170px 高，長截圖要往下滑才看得到條碼，
+   站長：「票券甚至看不到半張」）。序號、面額／數量照樣寫在最下面的資料裡。跟列表那一套數字一樣，改一邊要看另一邊 */
+#dBody{padding-top:12px}
+.d-ticket{margin:0 0 12px}
 .d-ticket .tw:hover{filter:var(--drop)}
-.d-ticket .ticket{--stubw:100px;min-height:142px;cursor:default}
-.d-ticket .t-body{padding:18px 16px 17px 32px!important}
-.d-ticket .t-title{font-size:23px;-webkit-line-clamp:4}
-.d-ticket .s-num{font-size:48px}
-.d-ticket .s-num.time{font-size:21px}   /* v94：用掉的時間被上一行的 48px 蓋過去，會超出票根 */
-.d-ticket .stamp{font-size:22px}
+.d-ticket .ticket{--stubw:84px;min-height:68px;cursor:default}
+.d-ticket .t-edge{width:11px}
+.d-ticket .t-body{padding:11px 10px 11px 26px!important;gap:2px}
+.d-ticket .t-merchant{font-size:12.5px;gap:6px}
+.d-ticket .t-merchant .bm{--bs:18px}
+.d-ticket .t-title{font-size:17.5px;line-height:1.28}
+.d-ticket .t-tags{gap:5px;margin-top:5px}
+.d-ticket .t-tags > *{font-size:12px;padding:1px 8px}
+.d-ticket .t-code{display:none}
+.d-ticket .t-value[data-q="1"]{display:none}
+.d-ticket .t-tags:not(:has(> :not(.t-value[data-q="1"]))){display:none}
+.d-ticket .t-stub{flex-direction:row;flex-wrap:wrap;align-content:center;justify-content:center;align-items:baseline;gap:0 3px;padding:8px 10px 8px 4px}
+.d-ticket .s-top,.d-ticket .s-unit{font-size:10.5px}
+.d-ticket .t-stub:has(.s-num.time),.d-ticket .t-stub:has(.s-num.none){padding-right:12px}
+.d-ticket .s-num{font-size:28px}
+.d-ticket .s-num.small{font-size:22px}
+.d-ticket .s-num.time{font-size:15px}
+.d-ticket .s-num.word{font-size:17px}
+.d-ticket .s-date{flex:0 0 100%;margin-top:3px;font-size:10.5px;text-align:center}
+.d-ticket .stamp{right:8px;font-size:15px;padding:3px 9px 2px;border-width:2px;letter-spacing:.14em}
 
 /* v94 詳情頁：「標記已使用」和「分享這張」放在票卡正下方（以前在最下面，滑不到就忘了按）；
    往下滑看截圖、條碼時，這一排黏在標題列底下。--barh＝標題列高度，openDetail 量好放上去 */
@@ -585,6 +602,13 @@ body[data-selecting="1"] .tw > .tick{display:grid}
 .dact .btn.use svg{width:19px;height:19px}
 .dact .btn.done{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
 .dact .btn.done small{font-weight:500;font-size:12.5px;opacity:.8}
+/* v96：手指一碰就縮一下、變深（不用等畫面重畫）；狀態換了那一下按鈕彈一下 */
+.dact .btn{transition:transform .08s ease}
+.dact .btn:active{transform:scale(.95)}
+.dact .btn.use.primary:active{background:color-mix(in srgb,var(--ink) 78%,#000)}
+.dact .btn.use.done:active{background:color-mix(in srgb,var(--accent) 22%,var(--paper))}
+.dact .btn.use.just{animation:usePop .34s ease-out}
+@keyframes usePop{0%{transform:scale(.92)}55%{transform:scale(1.04)}100%{transform:none}}
 
 .kv{display:grid;grid-template-columns:76px 1fr;gap:10px 12px;margin:22px 0}
 .kv dt{font-size:13px;color:var(--ink-3);font-weight:500}
@@ -724,6 +748,38 @@ label.f input:focus,label.f select:focus,label.f textarea:focus{border-color:var
 .okb:empty{display:none}
 .okb.warn{color:var(--warn)}
 .okb.bad{color:var(--danger)}
+/* v98 設定：右上角鈴鐺（綠＝都正常、黃＝有事要看、紅＝有問題）、通知與連線的「狀態」、分享頁 */
+.iconbtn.bell{position:relative}
+.iconbtn.bell svg{width:20px;height:20px}
+.bdot{position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;background:#1F7A3F;border:2px solid var(--card)}
+.bdot.warn{background:var(--warn)}
+.bdot.bad{background:var(--danger)}
+.tl small.warn:empty{display:none}
+.settings .sg-h .sg-n{float:right;font-weight:700;letter-spacing:0}
+.st{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid var(--line);font-size:14.5px}
+.st:first-child{border-top:0}
+.st b{flex:none;width:5.2em;font-weight:700}
+.st .stv{flex:1;text-align:right;font-size:13px;color:var(--ink-2)}
+.st .dot{width:9px;height:9px;border-radius:50%;flex:none;background:#1F7A3F}
+.st .dot.warn{background:var(--warn)}
+.st .dot.bad{background:var(--danger)}
+.st .dot.off{background:var(--line-2)}
+.sw .av{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+details.srow > summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer}
+details.srow > summary::-webkit-details-marker{display:none}
+details.srow[open] > summary .sw-go{transform:rotate(90deg)}
+details.srow .meta{margin-top:10px}
+.srow-t{flex:1;min-width:0}
+.srow-t b{display:block;font-size:16px;font-weight:900}
+.srow-t small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.srow-w{font-size:12.5px;font-weight:700;color:var(--warn);white-space:nowrap}
+/* v98 設定頁最下面的浮水印（站長 10/13 要的；朋友包也留著） */
+.credit{margin:72px 0 4px;text-align:center;font-size:13px;font-weight:600;letter-spacing:.18em;color:var(--ink-3);opacity:.7;user-select:none;pointer-events:none}
+.sw-t small.warn{color:var(--warn);font-weight:700}
+.btn.mini{display:inline-flex;width:auto;padding:3px 10px;font-size:12.5px;vertical-align:baseline;margin:0 2px}
+#engPick{flex-wrap:wrap;overflow:visible}
+.upd-steps code,.note code{font-family:var(--mono);font-size:.92em;background:var(--card-2);border-radius:6px;padding:1px 5px}
+.draft-head img[src=""]{visibility:hidden}
 .settings > .sg,.settings > .tiles{margin-top:12px}
 .settings > .tiles:first-child,.settings > .tiles[hidden] + .sg{margin-top:0}
 .upd{padding:14px}
@@ -926,6 +982,9 @@ a.btn{text-decoration:none}
 .navpair .iconbtn[disabled]{opacity:.35}
 .navpos{font-family:var(--num);font-size:15px;font-weight:600;color:var(--ink-3);
   font-variant-numeric:tabular-nums;min-width:44px;text-align:center}
+/* v95 一疊裡的第幾張：「3 / 91」底下一行小字「同款 2/4」 */
+.navpos small{display:block;font-family:var(--sans);font-size:11px;font-weight:700;line-height:1.2;color:var(--accent);white-space:nowrap}
+.navpos:has(small){line-height:1.15}
 
 /* 匯入進度條釘在標題列下面，捲到哪都看得到進度 */
 #impProgress{
@@ -1000,11 +1059,30 @@ body[data-selecting="1"] .t-pick{width:56px}
 .vh{position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0;margin:0}
 
 /* ── v83 主畫面：搜尋＋加號＋設定一列，日期/商家＋篩選一列，選了商家後商家和種類合成一列，底下的浮動列拿掉 ── */
-.topbar .row.top2{padding:12px 0 10px;gap:8px}
-.top2 .search{padding:0 14px}
-.top2 .search .count{flex:none;font-size:13px;font-weight:700;color:color-mix(in srgb,var(--accent) 55%,var(--ink-3));font-variant-numeric:tabular-nums}
-.top2 .search .count:empty{display:none}
 .ctrlrow{display:flex;align-items:center;gap:8px;padding-bottom:11px}
+.topbar .ctrlrow{padding-top:12px}      /* v95：搜尋那一列搬到最下面了，頂端只剩這一列（和選了商家後的那一列） */
+/* v95 最下面那一條：搜尋（含張數）＋紫色 ＋＋設定，跟多選時那條（.dock）同一個樣子；多選時換成 .dock。
+   --kb＝鍵盤擋住的高度（Android Chrome、iPhone 鍵盤不會把 fixed 的東西推上來，bbarKb 量好放上去） */
+.bbar{
+  position:fixed;left:0;right:0;bottom:var(--kb,0px);z-index:30;pointer-events:none;
+  padding:18px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top,var(--paper) 30%,transparent);
+}
+:root[data-kb="1"] .bbar{padding-bottom:8px}
+.bbar .inner{
+  pointer-events:auto;max-width:520px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:6px;
+  background:color-mix(in srgb,var(--card) 72%,transparent);
+  -webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);
+  border:1px solid color-mix(in srgb,var(--line-2) 70%,transparent);border-radius:999px;
+  box-shadow:0 10px 30px -12px rgba(17,17,20,.35);
+}
+.bbar .search{padding:0 14px;background:var(--card)}
+.bbar .search .count{flex:none;font-size:13px;font-weight:700;color:color-mix(in srgb,var(--accent) 55%,var(--ink-3));font-variant-numeric:tabular-nums}
+.bbar .search .count:empty{display:none}
+.bbar .iconbtn{width:44px;height:44px}
+.bbar .iconbtn.plus{background:var(--plum);color:#fff;box-shadow:none}
+.bbar .iconbtn.plus svg{width:20px;height:20px}
+body[data-selecting="1"] .bbar{display:none}
 .ctrlrow .seg{flex:none}
 .ctrlrow .seg button{padding:6px 10px;font-size:13px}
 .ctrlrow .chips{flex:1;min-width:0;padding:0;margin:0;-webkit-mask-image:linear-gradient(to right,#000 90%,transparent);mask-image:linear-gradient(to right,#000 90%,transparent)}
@@ -1041,13 +1119,13 @@ body[data-selecting="1"] .t-pick{width:56px}
 .drill.open .cattabs{display:none}
 /* 底下那條平常不用了：多選的時候才升起（取消／出示／分享） */
 body:not([data-selecting="1"]) .dock{display:none}
-body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+/* v95：平常最下面有搜尋那條（.bbar），跟多選那條一樣高，body 底下留的 104px 不再拿掉 */
 /* 長按票券進多選：不要跳出手機內建的選字／複製選單 */
 .ticket{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .empty .emptybtn{width:auto;display:inline-flex;margin-top:18px;padding:12px 24px}
 /* 加號選單 */
 .addmenu{
-  position:fixed;z-index:60;top:calc(58px + env(safe-area-inset-top,0px));right:16px;width:250px;padding:6px;
+  position:fixed;z-index:60;bottom:calc(82px + var(--kb,0px) + env(safe-area-inset-bottom,0px));right:max(16px,calc((100vw - 520px) / 2));width:250px;padding:6px;
   background:var(--card);border-radius:18px;box-shadow:0 18px 40px -10px rgba(43,27,64,.38),0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent);
 }
 .addmenu[hidden]{display:none}
@@ -1062,19 +1140,6 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
 <!-- ══════════════ 主畫面 ══════════════ -->
 <div class="topbar">
   <div class="wrap">
-    <div class="row top2">
-      <div class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" placeholder="搜尋商家、券名或序號" autocomplete="off">
-        <span class="count" id="count"></span>
-      </div>
-      <button class="iconbtn" id="btnAdd" aria-label="新增票券" title="新增票券" aria-haspopup="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
-      <button class="iconbtn" id="btnSettings" aria-label="設定" title="設定">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-    </div>
     <div class="ctrlrow">
       <div class="seg" id="seg" role="group" aria-label="排列方式">
         <button type="button" data-group="time" aria-pressed="true">日期</button>
@@ -1097,7 +1162,24 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
   </div>
 </div>
 
-<!-- v83：右上角 ＋ 的小選單 -->
+<!-- v95：搜尋（含張數）＋加號＋設定搬到最下面，拇指按得到；多選時換成底下那條「取消／出示／分享」（.dock） -->
+<div class="bbar" id="bbar">
+  <div class="inner">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="搜尋商家、券名或序號" autocomplete="off" enterkeyhint="search">
+      <span class="count" id="count"></span>
+    </div>
+    <button class="iconbtn plus" id="btnAdd" aria-label="新增票券" title="新增票券" aria-haspopup="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="iconbtn" id="btnSettings" aria-label="設定" title="設定">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- v83：＋ 的小選單（v95 起 ＋ 在最下面，選單往上長） -->
 <div class="addmenu" id="addMenu" hidden>
   <button type="button" id="amImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg><span><b>拍照或匯入</b><small>從相簿挑票券截圖</small></span></button>
   <button type="button" id="amManual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span><b>手動輸入一張</b><small>自己填商家和券名</small></span></button>
@@ -1106,7 +1188,17 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
 <main class="wrap">
   <div id="demoBanner" class="banner" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
-    <div>目前是<strong>示範模式</strong>，下面都是範例票券，資料只存在這台裝置。接上你的 Google Sheets 後端後就會換成真實票券。<button id="lnkSetup" type="button">前往設定</button></div>
+    <div><span id="demoText">目前是<strong>示範模式</strong>，下面都是範例票券，資料只存在這台裝置。接上你的 Google Sheets 後端後就會換成真實票券。</span><button id="lnkSetup" type="button">前往設定</button></div>
+  </div>
+  <!-- v98：背景辨識的進度／辨識好了等你確認 -->
+  <div id="pendBar" class="banner updbar" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <div><span id="pendText"></span><span class="fb-acts"><button id="pendGo" type="button">確認後存入</button></span></div>
+  </div>
+  <!-- v98：還差一步的設定（辨識金鑰、分享連結打不開） -->
+  <div id="setupBar" class="banner offbar" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div><span id="setupText"></span><span class="fb-acts"><button id="setupGo" type="button">去設定</button><button id="setupHide" class="dim" type="button" hidden>今天先不要</button></span></div>
   </div>
   <div id="offBar" class="banner offbar" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 8.8a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16.2a5 5 0 0 1 6 0M12 20h.01"/><path d="M3 3l18 18"/></svg>
@@ -1236,39 +1328,20 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
   <div class="sheet-bar">
     <button class="iconbtn" data-close="shSettings" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
     <h2>設定</h2>
+    <button class="iconbtn bell" id="setBell" type="button" aria-label="通知與連線"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="bdot" id="bellDot" hidden></span></button>
   </div>
   <div class="sheet-body settings">
 
     <div class="tiles" id="grpTools" hidden>
-      <button class="tl" id="setMembers" type="button"><span class="tl-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2A5.5 5.5 0 0 1 21.5 20"/></svg></span><b>親友連結</b><small id="membersSum">新增親友</small></button>
-      <button class="tl" id="tlShares" type="button"><span class="tl-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 15V3"/><path d="m8 7 4-4 4 4"/></svg></span><b>分享紀錄</b><small id="sharesSum"></small></button>
-      <button class="tl" id="setBal" type="button"><span class="tl-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg></span><b>餘額型</b><small id="balSum"></small></button>
-      <button class="tl" id="setDup" type="button"><span class="tl-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg></span><b>檢查重複</b><small id="dupSum"></small></button>
+      <button class="tl" id="setShareHub" type="button"><span class="tl-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 15V3"/><path d="m8 7 4-4 4 4"/></svg></span><b>分享</b><small id="shareHubSum"></small></button>
+      <button class="tl" id="setOrganize" type="button"><span class="tl-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 10v6"/><path d="m9 13 3 3 3-3"/></svg></span><b>匯入與整理</b><small>上傳區・重複・餘額型</small><small class="warn" id="organizeSum"></small></button>
     </div>
 
     <div class="sg" id="rowsCard">
-      <button class="sw" id="setImportNow" type="button" hidden><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 9.6 3.7 3.7 0 0 1 17.5 18H7z"/><path d="M12 11v6m-3-3 3 3 3-3"/></svg></span><span class="sw-t">立即匯入上傳區<small id="impNowMsg"></small></span><span class="sw-go">›</span></button>
       <button class="sw" id="setGallery" type="button" hidden><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-9 9"/></svg></span><span class="sw-t">所有票券圖檔</span><span class="sw-go">›</span></button>
-      <button class="sw" id="rwNotify" type="button" hidden><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></span><span class="sw-t">通知</span><span class="okb" id="notifyBadge"></span><span class="sw-go">›</span></button>
-      <button class="sw" id="rwConn" type="button"><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/></svg></span><span class="sw-t">連線與裝置</span><span class="okb" id="connBadge"></span><span class="sw-go">›</span></button>
     </div>
 
-    <div class="sg" id="grpRules" hidden>
-      <details class="sdet" id="setRules">
-          <summary class="sw"><span class="sw-t">改名規則<small id="rulesSum">舊名字自動換成新名字，種類維持原樣</small></span><span class="sw-go">›</span></summary>
-          <div class="sdet-body">
-            <p class="note" style="margin:0 0 10px">匯入票券時，名字跟下面任何一條「舊名字」一樣（或只差空格、括號、商家名、「好禮即享券」這類固定字、一個錯字）的，會自動換成新名字，備註會寫原名，種類維持原樣。規則放在試算表的「NameRules」分頁，也可以直接在那裡改。</p>
-            <label class="f"><span>貼上規則：每行一條「舊商家、舊券名、新商家、新券名」，用 Tab 或逗號隔開（可以從 Excel 直接複製貼上）。舊券名空白＝這家商家的任何券名（例如 7-ELEVEN → 7-11）</span>
-              <textarea id="rulesText" rows="6" placeholder="7-ELEVEN,,7-11,&#10;麥當勞,麥當勞薯條(中)即享券,麥當勞,中薯" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
-            </label>
-            <div style="display:flex;gap:10px">
-              <button class="btn ghost" id="rulesOpen">在試算表打開</button>
-              <button class="btn primary" id="rulesImport">加入規則</button>
-            </div>
-            <p class="note" id="rulesMsg" style="margin:12px 0 0"></p>
-          </div>
-        </details>
-    </div>
+    
 
     <div id="grpDense">
       <h3 class="sg-h">列表</h3>
@@ -1309,33 +1382,75 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
       </details>
     </div>
 
+    <p class="credit" aria-hidden="true">Designed by Martin</p>
+
   </div>
 </div>
 
-<!-- ══════════════ 設定的子頁：分享紀錄、通知、連線與裝置（v80） ══════════════ -->
-<div class="sheet" id="shShares" hidden>
+<!-- ══════════════ v98 設定 → 匯入與整理 ══════════════ -->
+<div class="sheet" id="shOrganize" hidden>
   <div class="sheet-bar">
-    <button class="iconbtn" data-close="shShares" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
-    <h2>分享紀錄</h2>
+    <button class="iconbtn" data-close="shOrganize" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+    <h2>匯入與整理</h2>
   </div>
   <div class="sheet-body settings">
-    <div id="setShares" hidden>
-      <div class="sg sg-pad">
-        <p class="note" style="margin:0 0 12px">給了誰、開過沒、用掉沒。收回之後連結就打不開。</p>
-        <button class="btn ghost" id="setLoadShares" style="width:100%">載入分享紀錄</button>
-        <div id="shareList"></div>
-      </div>
+    <h3 class="sg-h">匯入</h3>
+    <div class="sg">
+      <button class="sw" id="orgPend" type="button" hidden><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="sw-t">辨識好、等你確認<small id="orgPendMsg">背景辨識完的截圖，看過再存入</small></span><span class="okb" id="orgPendSum"></span><span class="sw-go">›</span></button>
+      <button class="sw" id="setImportNow" type="button"><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 9.6 3.7 3.7 0 0 1 17.5 18H7z"/><path d="M12 11v6m-3-3 3 3 3-3"/></svg></span><span class="sw-t">雲端硬碟上傳區<small>立即匯入還沒處理的截圖（平常每 15 分鐘自動跑）</small><small id="impNowMsg"></small></span><span class="sw-go">›</span></button>
+      <details class="sdet" id="setRules">
+          <summary class="sw"><span class="sw-t">改名規則<small id="rulesSum">舊名字自動換成新名字，種類維持原樣</small></span><span class="sw-go">›</span></summary>
+          <div class="sdet-body">
+            <p class="note" style="margin:0 0 10px">匯入票券時，名字跟下面任何一條「舊名字」一樣（或只差空格、括號、商家名、「好禮即享券」這類固定字、一個錯字）的，會自動換成新名字，備註會寫原名，種類維持原樣。規則放在試算表的「NameRules」分頁，也可以直接在那裡改。</p>
+            <label class="f"><span>貼上規則：每行一條「舊商家、舊券名、新商家、新券名」，用 Tab 或逗號隔開（可以從 Excel 直接複製貼上）。舊券名空白＝這家商家的任何券名（例如 7-ELEVEN → 7-11）</span>
+              <textarea id="rulesText" rows="6" placeholder="7-ELEVEN,,7-11,&#10;麥當勞,麥當勞薯條(中)即享券,麥當勞,中薯" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+            </label>
+            <div style="display:flex;gap:10px">
+              <button class="btn ghost" id="rulesOpen">在試算表打開</button>
+              <button class="btn primary" id="rulesImport">加入規則</button>
+            </div>
+            <p class="note" id="rulesMsg" style="margin:12px 0 0"></p>
+          </div>
+        </details>
+    </div>
+    <h3 class="sg-h">整理</h3>
+    <div class="sg">
+      <button class="sw" id="setDup" type="button"><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg></span><span class="sw-t">檢查重複<small>同一張匯入兩次的，看縮圖確認再刪</small></span><span class="okb" id="dupSum"></span><span class="sw-go">›</span></button>
+      <button class="sw" id="setBal" type="button"><span class="sw-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg></span><span class="sw-t">餘額型的券<small>禮物卡、商品卡這類分次使用的，確認剩多少</small></span><span class="okb" id="balSum"></span><span class="sw-go">›</span></button>
     </div>
   </div>
 </div>
 
-<div class="sheet" id="shNotify" hidden>
+<!-- ══════════════ 設定的子頁：分享（v98：分享紀錄＋親友連結）、通知與連線（v98：通知＋連線與裝置） ══════════════ -->
+<div class="sheet" id="shShares" hidden>
   <div class="sheet-bar">
-    <button class="iconbtn" data-close="shNotify" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
-    <h2>通知</h2>
+    <button class="iconbtn" data-close="shShares" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+    <h2>分享</h2>
   </div>
   <div class="sheet-body settings">
-    <div class="sg">
+    <div id="setShares" hidden>
+      <h3 class="sg-h">分享出去的連結<span class="sg-n" id="sharesSum"></span></h3>
+      <div id="shareList"></div>
+      <button class="btn ghost" id="setLoadShares" style="width:100%;margin-top:12px">載入分享紀錄</button>
+      <h3 class="sg-h">親友連結（長期）<span class="sg-n" id="membersSum"></span></h3>
+      <div class="sg" id="hubMembers"></div>
+      <button class="btn primary" id="hubAddMember" style="width:100%;margin-top:10px">＋ 新增親友</button>
+      <p class="note" style="margin:10px 4px 0">點任何一條：傳給他、複製連結、收回或停用。</p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="shConn" hidden>
+  <div class="sheet-bar">
+    <button class="iconbtn" data-close="shConn" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+    <h2>通知與連線</h2>
+  </div>
+  <div class="sheet-body settings">
+    <h3 class="sg-h">狀態</h3>
+    <div class="sg" id="stList"></div>
+    <div id="grpNotify">
+      <h3 class="sg-h">通知</h3>
+      <div class="sg">
       <button class="sw" id="setTestNotify" hidden>
         <span class="sw-t">傳一則測試通知<small id="testNotifyMsg">看 Discord 多久跳到手機上</small></span>
         <span class="sw-go">›</span>
@@ -1348,16 +1463,9 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
         <span class="sw-t">預覽到期提醒<small id="remindMsg">到期前 10 天起每天早上 9 點多提醒，按這裡先看一次</small></span>
         <span class="sw-go">›</span>
       </button>
+      </div>
     </div>
-  </div>
-</div>
-
-<div class="sheet" id="shConn" hidden>
-  <div class="sheet-bar">
-    <button class="iconbtn" data-close="shConn" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
-    <h2>連線與裝置</h2>
-  </div>
-  <div class="sheet-body settings">
+    <h3 class="sg-h">連線與裝置</h3>
     <div class="sg">
       <details class="sdet" id="detConn">
         <summary class="sw"><span class="sw-t">後端與存取碼<small id="connSum">還沒設定，目前是示範模式</small></span><span class="sw-go">›</span></summary>
@@ -1374,6 +1482,22 @@ body:not([data-selecting="1"]){padding-bottom:calc(28px + env(safe-area-inset-bo
           </div>
           <p class="note" id="setMsg" style="margin:12px 0 0"></p>
         </div>
+      </details>
+      <details class="sdet" id="detEngine" hidden>
+        <summary class="sw"><span class="sw-t">辨識金鑰<small id="engSum">讀截圖用的</small></span><span class="sw-go">›</span></summary>
+        <div class="sdet-body">
+          <p class="note" style="margin:0 0 10px" id="engHelp"></p>
+          <div class="chips" id="engPick" style="padding:0 0 10px"><button class="chip" type="button" data-eng="gemini" aria-pressed="true">Gemini（有免費額度）</button><button class="chip" type="button" data-eng="claude" aria-pressed="false">Claude（付費）</button></div>
+          <label class="f"><span id="engLabel">Gemini 金鑰</span>
+            <input id="engKey" type="text" placeholder="AIza…" autocapitalize="off" autocorrect="off" spellcheck="false">
+          </label>
+          <button class="btn primary" id="engSave" type="button" style="width:100%">儲存金鑰</button>
+          <p class="note" id="engMsg" style="margin:12px 0 0"></p>
+        </div>
+      </details>
+      <details class="sdet" id="detLink" hidden>
+        <summary class="sw"><span class="sw-t">分享短網址<small id="linkSum">分享出去的連結用你的網站網址</small></span><span class="okb" id="linkBadge"></span><span class="sw-go">›</span></summary>
+        <div class="sdet-body" id="linkBody"></div>
       </details>
       <details class="sdet" id="setSync" hidden>
         <summary class="sw"><span class="sw-t">換到另一台裝置<small>掃碼自動填好設定</small></span><span class="sw-go">›</span></summary>
@@ -1524,6 +1648,9 @@ var LS = {
   set: function(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
 };
 var CFG = LS.get('tw.cfg', {api:'', key:''});
+/* v98：網站產生器（kitgen.js）會把下面這行的空字串換成你的 /exec 網址，第一次打開只要貼存取碼。站長版空著 */
+var DEFAULT_API = '';
+var ENGINE_READY = null, ENGINE_NAME = '', SRV_BASE = null;   // v98 後端回報：有沒有辨識金鑰、用哪個、SHORT_BASE（null＝還不知道）
 var DEMO = function(){ return !CFG.api; };
 
 /* ---------- 工具 ---------- */
@@ -2315,6 +2442,23 @@ function groupsFor(rows){
 }
 
 var VISIBLE = [];   // 目前列表上看得到的票券順序
+/** v95 詳情頁上一張／下一張的順序＝畫面上看到的順序：一組一組走（依商家看就是一家一家），同一疊的連在一起，
+ *  收起來沒露出來的照展開後的位置排。以前是全部照到期日排：點進一疊中薯，下一張卻是別家快到期的布丁。
+ *  rows：這次列表上所有的票券（保險：沒分到組的接在最後，不會從上一張／下一張裡消失） */
+function navOrder(gs, dense, rows){
+  var ids = [], stk = {}, seen = {};
+  function add(t){ if(seen[t.id]) return false; seen[t.id] = 1; ids.push(t.id); return true; }
+  gs.forEach(function(g){
+    (dense ? stacksOf(g.items) : g.items.map(function(t){ return {key: '', items: [t]}; })).forEach(function(c){
+      var n = c.items.length;
+      // 一疊裡的第幾張（詳情頁右上角「同款 2/4」）
+      c.items.forEach(function(t, i){ if(add(t) && c.key && n > 1) stk[t.id] = [i + 1, n]; });
+    });
+  });
+  (rows || []).forEach(add);
+  return {ids: ids, stk: stk};
+}
+var VISIBLE_STK = {};   // v95：id → [一疊裡的第幾張, 這疊幾張]（只有疊起來的才有）
 
 function render(){
   // v69：一張餘額型都沒有（或剛取消標記）→ 「餘額型」那一格收起來；停在那一格的話退回「可用」
@@ -2337,12 +2481,12 @@ function render(){
   }
 
   var host = $('list');
-  VISIBLE = rows.map(function(t){ return t.id; });   // 詳情頁的上一張／下一張照這個順序走
+  VISIBLE = []; VISIBLE_STK = {};
 
   if(!rows.length){
     host.innerHTML = '<div class="empty"><strong>' +
       (TICKETS.length ? '這個篩選沒有票券' : '票券櫃是空的') + '</strong>' +
-      (TICKETS.length ? '換一個篩選條件看看。' : '挑幾張票券截圖進來，或點右上角的 ＋ 選「手動輸入一張」自己填。' +
+      (TICKETS.length ? '換一個篩選條件看看。' : '挑幾張票券截圖進來，或點最下面的 ＋ 選「手動輸入一張」自己填。' +
         '<br><button type="button" class="btn primary emptybtn" id="emptyImport">拍照或匯入</button>') + '</div>';
     renderRail([]);
   } else {
@@ -2350,6 +2494,8 @@ function render(){
     var peekMode = (view.group === 'brand' && !view.brands.length);
     var dense = denseOn() && !view.selecting;          // v89 精簡列表才併成一疊；多選時攤開
     var gs = groupsFor(rows);
+    var nav = navOrder(gs, dense, rows);   // 詳情頁的上一張／下一張照這個順序走（v95：照畫面上的順序）
+    VISIBLE = nav.ids; VISIBLE_STK = nav.stk;
     host.innerHTML = gs.map(function(g){
       var cl = dense ? stacksOf(g.items) : g.items.map(function(t){ return {key: '', items: [t]}; });
       // 商家模式（v91）：每一家先露 2 個（一疊或一張算一個），點一下再露到 6 個，再點全部；種類不到 7 個的店，第 2 段就是全部。
@@ -2382,6 +2528,7 @@ function render(){
   $('chips').parentNode.classList.toggle('endmode', view.filter === 'done');
   document.body.dataset.selecting = view.selecting ? '1' : '0';
   $('demoBanner').hidden = !DEMO();
+  renderDemoBanner();                                   // v98：網站產生器做的網站，寫「只差貼上存取碼」
   renderFriendBar();
   renderBalBar();
   renderUpdBar();
@@ -2409,6 +2556,8 @@ function railState(boxes, topH, vh){
   return {past: past, first: first, last: last};
 }
 function topbarH(){ var tb = document.querySelector('.topbar'); return tb ? tb.offsetHeight : 0; }
+/** v95 最下面那條（搜尋列）的上緣；藏起來（多選）時就是畫面最底下 */
+function bbarTop(){ var b = document.querySelector('.bbar .inner'), r = b && b.getBoundingClientRect(); return r && r.height ? r.top : window.innerHeight; }
 /** names＝列表上每一組的店名（不到三家就不放卷軸） */
 function renderRail(names){
   var rail = $('brandRail'), show = names.length >= 3;
@@ -2426,7 +2575,7 @@ function renderRail(names){
 function railSync(){
   if(!RAIL.length) return;
   var rail = $('brandRail'), th = topbarH(), top = th + 12;
-  var L = railLayout(window.innerHeight - top - 24, RAIL.length);
+  var L = railLayout(bbarTop() - top - 12, RAIL.length);      // v95：停在最下面那條（搜尋列）上面
   RAIL_GEO = {top: top, ih: L.ih};
   rail.style.top = top + 'px';
   rail.style.height = L.h + 'px';
@@ -2625,7 +2774,7 @@ function renderDock(){
     if($('dkShare')) $('dkShare').onclick = openShare;
     if($('dkUnshare')) $('dkUnshare').onclick = unshareSelected;
   } else {
-    d.innerHTML = '';          // v83：平常沒有這一列；匯入在右上角 ＋，多選用長按票券或點左邊的色帶
+    d.innerHTML = '';          // v83：平常沒有這一列；匯入在 ＋（v95 起在最下面那條），多選用長按票券或點左邊的色帶
   }
 }
 
@@ -2846,28 +2995,32 @@ document.addEventListener('keydown', function(e){
   if(!$('balPanel').hidden){ closeBal(); return; }
   if(!$('shLbx').hidden){ closeImage(); return; }
   if(!$('shShow').hidden){ closeShow(); return; }
-  ['shDetail','shImport','shShare','shShares','shNotify','shConn','shSettings','shGallery','shDup','shBal','shMembers'].forEach(function(id){ $(id).hidden = true; });
+  ['shDetail','shImport','shShare','shShares','shOrganize','shConn','shSettings','shGallery','shDup','shBal','shMembers'].forEach(function(id){ $(id).hidden = true; });
 });
 
 
 
 
 
-/* 詳情頁：上一張／下一張，照列表上看到的順序走 */
+/* 詳情頁：上一張／下一張，照列表上看到的順序走。
+   v95：用「從列表點進來那一刻」的順序（DETAIL_ORDER，openDetail 記下來）：標記已使用之後那張從「可用」消失，
+   以前上下箭頭會變灰、張數不見，要回列表才能點下一張；現在那張留在原位，往下滑就是同一疊的下一張。刪掉的跳過 */
+var DETAIL_ORDER = [], DETAIL_STK = {};
+function detailIds(){ return DETAIL_ORDER.filter(function(id){ return !!findT(id); }); }
 function stepDetail(dir){
-  var i = VISIBLE.indexOf(curDetailId);
+  var ids = detailIds(), i = ids.indexOf(curDetailId);
   if(i < 0) return;
   var j = i + dir;
-  if(j < 0 || j >= VISIBLE.length) return;
-  openDetail(VISIBLE[j]);
+  if(j < 0 || j >= ids.length) return;
+  openDetail(ids[j]);
   $('shDetail').scrollTop = 0;
 }
 
 function paintNav(){
-  var i = VISIBLE.indexOf(curDetailId);
+  var ids = detailIds(), i = ids.indexOf(curDetailId), s = DETAIL_STK[curDetailId];
   $('dPrev').disabled = (i <= 0);
-  $('dNext').disabled = (i < 0 || i >= VISIBLE.length - 1);
-  $('dPos').textContent = i < 0 ? '' : (i + 1) + ' / ' + VISIBLE.length;
+  $('dNext').disabled = (i < 0 || i >= ids.length - 1);
+  $('dPos').innerHTML = i < 0 ? '' : (i + 1) + ' / ' + ids.length + (s ? '<small>同款 ' + s[0] + '/' + s[1] + '</small>' : '');
 }
 
 $('dPrev').onclick = function(){ stepDetail(-1); };
@@ -3750,7 +3903,8 @@ function toggleUsed(id, fromLbx, extra){
   var keepUndo = next === 'used' && (willAdvance(fromLbx) || !!extra);
   Object.assign(t, patch);
   repaintUsed(t);
-  render();
+  buzz();
+  renderSoon();                 // v96：眼前的出示模式／放大畫面先變，底下的列表下一個畫面再重畫
   if(next === 'used'){
     toast('已標記使用', keepUndo ? {label:'復原', fn: function(){
       var cur = {};
@@ -4008,6 +4162,16 @@ function findT(id){ for(var i=0;i<TICKETS.length;i++){ if(TICKETS[i].id===id) re
 var curDetailId = '';
 var detailHome = '';     // v77：從列表點進詳情時的那一張（用上方「︿ 2 / 82 ﹀」切到別張之後，返回先回這一張）
 
+/** v96：先讓眼前這一頁畫出來（按鈕變色、蓋章），下一個畫面再重畫被蓋在底下的列表。
+ *  手機上「列表＋詳情」一起重畫要一兩百毫秒，以前按鈕要等列表畫完才變，像是沒按到 */
+function renderSoon(){
+  var done = false, go = function(){ if(done) return; done = true; setTimeout(render, 0); };
+  if(window.requestAnimationFrame) requestAnimationFrame(go);
+  setTimeout(go, 150);          // 保險：App 剛好切到背景時 requestAnimationFrame 不會跑，列表也要畫好
+}
+/** v96 標記已使用／改回：手機輕輕震一下（Android；iPhone 的瀏覽器不支援就沒有），不用盯著畫面也知道按到了 */
+function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(15); }catch(e){} }
+
 /** v94 詳情頁上面那一排：「標記已使用」（最寬）＋「分享這張」。用掉的變淡紫色「已使用 · 點一下改回」 */
 var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>';
 function dActHTML(t){
@@ -4034,12 +4198,13 @@ function openDetail(id){
   var keepShot = same && !needPeek(t) && $('dShot') && $('dShot').dataset.zoom === '1' ? $('dShot') : null;
   var keepY = same ? sh.scrollTop : -1;
   if($('shDetail').hidden) detailHome = id;       // 詳情頁本來是關著的＝從列表點進來；切上一張／下一張、重畫同一張都不算
+  if($('shDetail').hidden){ DETAIL_ORDER = VISIBLE.slice(); DETAIL_STK = VISIBLE_STK; }   // v95：記下這一刻的順序
   curDetailId = id;
   $('dTitle').innerHTML = (t.merchant ? badgeHTML(brandOf(t), t) : '') + esc(t.merchant || '票券');
   var tier = tierOf(t);
   $('dBody').innerHTML =
     (t.shareToken ? sharedBannerHTML(t) : '') +
-    // 跟列表上同一張票，只是換成不能點的版本、字放大
+    // 跟列表上同一張票，換成不能點的版本（v97 起跟精簡列表一樣大，不再放大）
     '<div class="d-ticket">' +
       ticketHTML(t, true) +
     '</div>' +
@@ -4048,6 +4213,7 @@ function openDetail(id){
     '<p class="shot-hint">點截圖會全螢幕只顯示這張圖，可以再轉橫向或放大。兌換時把螢幕亮度調到最高。</p>' +
     '<dl class="kv">' +
       '<dt>種類</dt><dd>' + esc(categoryOf(t)) + (t.category ? '' : '（自動判斷）') + '</dd>' +
+      (t.value ? '<dt>面額／數量</dt><dd>' + esc(t.value) + '</dd>' : '') +     // v97：上面的票卡變小了（「1 份」這種不顯示），這裡寫全
       (isBal(t) ? '<dt>餘額</dt><dd>' + esc(balLine(t)) + '</dd>' : '') +
       (isBal(t) && safeUrl(t.balanceUrl) ? '<dt>查餘額</dt><dd><a href="' + esc(safeUrl(t.balanceUrl)) + '" target="_blank" rel="noopener">打開來源 ↗</a></dd>' : '') +
       '<dt>到期日</dt><dd class="num">' + esc(t.expiry || '—') + '</dd>' +
@@ -4176,8 +4342,13 @@ function openDetail(id){
     var at = Date.now();
     Object.assign(t, patch);
     if(next === 'used') justStamped = t.id;
-    render(); openDetail(t.id);
+    // v96：先改眼前這一頁（按鈕變色、蓋章、震一下），被蓋在底下的列表等這一頁畫出來再重畫（renderSoon）。
+    // 以前先重畫整個列表才輪到這一頁，手機上按鈕要等一下才變，站長：「不太確定我有沒有按到」
+    openDetail(t.id);
     justStamped = '';
+    $('dUse').classList.add('just');
+    buzz();
+    renderSoon();
     if(next === 'used'){
       // v89：這一頁底下那顆按鈕馬上變成「改回未使用」，就是復原，提示不再重複給一個「復原」（只說一聲已標記）
       toast('已標記使用');
@@ -4356,6 +4527,12 @@ function openPicker(){
 }
 
 function runImport(files, keep){
+  if(!DEMO() && ENGINE_READY === false){                     // v98：後端說還沒有辨識金鑰，先請他貼
+    toast('還沒設定辨識金鑰：先貼上金鑰才能匯入截圖');
+    $('btnSettings').click(); openConn('engine');
+    return;
+  }
+  if(pendOn()) return runUpload(files);                      // v98：先上傳、背景辨識（後端是舊版才照舊一張一張辨識）
   if(!keep){ drafts = []; impFailed = []; }
   holdAwake(true);
   var failed = [];
@@ -4376,7 +4553,7 @@ function runImport(files, keep){
       $('impProgress').hidden = true;
       $('impActions').hidden = drafts.length ? false : true;
       showFailed(failed);
-      if(!drafts.length && !failed.length) $('impList').innerHTML = '<div class="empty"><strong>沒有辨識出票券</strong>回上一頁用右上角的 ＋ 自己填一張，或換一張比較清楚的截圖。</div>';
+      if(!drafts.length && !failed.length) $('impList').innerHTML = '<div class="empty"><strong>沒有辨識出票券</strong>回上一頁用最下面的 ＋ 自己填一張，或換一張比較清楚的截圖。</div>';
       var again = drafts.filter(usedTwinSure).length;      // v76：已經用掉的券又被匯入 → 先通知一聲
       if(again) toast(again + ' 張是已經用掉的券又匯入了：預設不存；要存的話會直接放進「已使用」');
       return;
@@ -4472,7 +4649,7 @@ function renderDrafts(){
                                   : '<span class="flag ok">辨識完成</span>');
     return '<div class="draft" data-n="' + n + '">' +
       '<div class="draft-head">' +
-        (d.dataUrl ? '<img alt="" src="' + d.dataUrl + '">' : '') +
+        (d.dataUrl || d.pendId ? '<img alt="" src="' + (d.dataUrl || '') + '"' + (d.pendId ? ' data-pend="' + esc(d.pendId) + '"' : '') + '>' : '') +
         '<div class="meta"><div class="fn">' + esc(d.filename || '') + '</div>' + flag +
         (d.renamed ? ' <span class="flag ok">已改名</span>' : '') +
         '<div style="margin-top:8px"><label style="font-size:13px;display:inline-flex;gap:6px;align-items:center">' +
@@ -4513,7 +4690,7 @@ $('impSave').onclick = function(){
     var t = readFields('d' + n);
     var tw = usedTwinSure(d);
     if(!box.querySelector('.dskip').checked){
-      skipped.push({label: ticketName(t) || d.filename || '', why: tw ? '已使用過，沒存' : d.duplicate ? '看起來已經匯入過' : '沒有勾選', usedAgain: !!tw});
+      skipped.push({label: ticketName(t) || d.filename || '', why: tw ? '已使用過，沒存' : d.duplicate ? '看起來已經匯入過' : '沒有勾選', usedAgain: !!tw, pendId: d.pendId || ''});
       return;
     }
     t.fileId = d.fileId || '';
@@ -4526,7 +4703,7 @@ $('impSave').onclick = function(){
     if(t.kind === 'balance' && t.balance !== '') t.balanceAt = todayISO();       // v69：剛匯入時就填了剩餘金額，算確認過
     if(t.kind === 'balance' && t.balanceUrl && !safeUrl(t.balanceUrl)) t.balanceUrl = '';
     if(DEMO()) t.dataUrl = d.dataUrl;
-    jobs.push({t: t, manual: !!d.manual, dup: !!d.duplicate, usedAgain: !!tw});
+    jobs.push({t: t, manual: !!d.manual, dup: !!d.duplicate, usedAgain: !!tw, pendId: d.pendId || ''});
   });
   if(!jobs.length){ toast('沒有勾選任何一張'); return; }
   var self = this, label = self.textContent;
@@ -4556,6 +4733,9 @@ $('impSave').onclick = function(){
     }).catch(function(){});
   }
   chain.then(function(){ report(null); }, function(err){ report(err); throw err; })
+  // v98：背景辨識好的，存好的從後端的 Pending 拿掉、沒勾的丟掉；存到一半出錯就只清存好的那幾張
+  .then(function(){ return pendDone(saved, skipped); },
+        function(err){ return pendDone(saved, []).then(function(){ throw err; }); })
   .then(function(){
     return refresh();
   }).then(function(){
@@ -5003,52 +5183,62 @@ function renderSync(){
   }
 }
 
-/* v83：右上角 ＋ 合併了原本底下的「拍照或匯入」：按一下出小選單，點外面、按返回都會收起來 */
+/* v95 最下面那條（搜尋）：手機鍵盤跳出來時，Android Chrome 和 iPhone 都不會把 fixed 在底部的東西推上來，
+   搜尋框會被鍵盤蓋住、看不到自己打的字。用 visualViewport 量鍵盤擋住多高，整條往上抬（CSS 的 --kb） */
+function bbarKb(){
+  var vv = window.visualViewport; if(!vv) return;
+  var kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+  if(kb < 80) kb = 0;                 // 網址列伸縮、捲動時那幾十 px 不算鍵盤
+  document.documentElement.style.setProperty('--kb', kb + 'px');
+  document.documentElement.dataset.kb = kb ? '1' : '0';
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', bbarKb);
+  window.visualViewport.addEventListener('scroll', bbarKb);
+}
+
+/* v83：＋ 合併了原本底下的「拍照或匯入」：按一下出小選單，點外面、按返回都會收起來（v95 起 ＋ 在最下面那條） */
 $('btnAdd').onclick = function(e){ e.stopPropagation(); $('addMenu').hidden = !$('addMenu').hidden; };
 $('amImport').onclick = function(){ $('addMenu').hidden = true; openPicker(); };
 $('amManual').onclick = function(){ $('addMenu').hidden = true; openManual(); };
 document.addEventListener('click', function(e){ if(!$('addMenu').hidden && !e.target.closest('#addMenu')) $('addMenu').hidden = true; });
 $('btnSettings').onclick = function(){
-  $('setApi').value = CFG.api; $('setKey').value = CFG.key;
+  $('setApi').value = CFG.api || DEFAULT_API; $('setKey').value = CFG.key;    // v98：網站產生器做的網站，後端網址已經填好
   $('setMsg').textContent = '';
   renderSync();
   $('grpTools').hidden = !CFG.api;
-  ['setImportNow', 'setGallery', 'rwNotify'].forEach(function(id){ $(id).hidden = !CFG.api; });
-  $('setTestNotify').hidden = !CFG.api;
-  $('setNotifyLog').hidden = !CFG.api;
+  // v98：通知搬到右上角鈴鐺那頁（通知與連線）；上傳區、改名規則、重複、餘額型搬到「匯入與整理」
+  ['rowsCard', 'setGallery', 'grpNotify', 'setTestNotify', 'setNotifyLog', 'setRemind'].forEach(function(id){ $(id).hidden = !CFG.api; });
   $('setRules').open = false; $('rulesMsg').textContent = '';
-  $('grpRules').hidden = !CFG.api || $('setRules').hidden;
-  $('setRemind').hidden = !CFG.api;
   if(CFG.api) showDeployStatus();
   showVersion(); showRelInfo();
-  $('connSum').textContent = CFG.api ? '已連到你的 Google 雲端' : '還沒設定，目前是示範模式';
+  $('connSum').textContent = CFG.api ? '已連到你的 Google 雲端' : DEFAULT_API ? '後端網址已經填好，貼上存取碼就好' : '還沒設定，目前是示範模式';
   renderSettingsSummary();
   $('detInfo').open = false;
   $('shSettings').hidden = false; $('shSettings').scrollTop = 0;
 };
 
-/* ---------- v80 設定頁：四格摘要、通知／連線的狀態、更新卡 ----------
+/* ---------- 設定頁的摘要（v80 起；v98 改成兩格＋右上角鈴鐺） ----------
    主頁只放一行狀態；細節都在點進去的那一頁。 */
 function renderSettingsSummary(){
-  function sum(id, text, warn){ var e = $(id); e.textContent = text; e.className = warn ? 'warn' : ''; }
-  sum('membersSum', MEMBERS.length ? MEMBERS.length + ' 位' : '新增親友');
+  function sum(id, text, cls){ var e = $(id); if(!e) return; e.textContent = text; e.className = cls || ''; }
   var toks = {};
   TICKETS.forEach(function(t){ if(t.shareToken && t.status !== 'used' && !isExpired(t)) toks[t.shareToken] = 1; });
-  var ns = Object.keys(toks).length;
-  sum('sharesSum', ns ? ns + ' 條有效' : '沒有有效的');
+  var ns = Object.keys(toks).length, nm = MEMBERS.length;
+  sum('shareHubSum', [ns ? ns + ' 條有效' : '', nm ? nm + ' 位親友' : ''].filter(Boolean).join('・') || '還沒有分享');
+  sum('sharesSum', ns ? ns + ' 條有效' : '', 'sg-n');
+  sum('membersSum', nm ? nm + ' 位' : '', 'sg-n');
   var pend = TICKETS.filter(function(t){ return isBal(t) && t.status !== 'used' && t.pendingAt; }).length;
-  sum('balSum', pend ? pend + ' 張待確認' : '分次使用的券', pend);
+  sum('balSum', pend ? pend + ' 張待確認' : '', 'okb warn');
   var ng = dupGroups().length;
-  sum('dupSum', ng ? ng + ' 組重複' : '沒有重複', ng);
-  // 連線
-  var cb = $('connBadge'), c = LS.get(CONN_KEY, null) || {};
-  if(!CFG.api){ cb.textContent = '示範模式'; cb.className = 'okb warn'; }
-  else if(c.fail && (!c.okAt || c.fail.at > c.okAt)){ cb.textContent = '連不到'; cb.className = 'okb bad'; }
-  else { cb.textContent = c.okAt ? '已連線' : ''; cb.className = 'okb'; }
-  // 通知：上次看「最近送出的通知」時有幾則沒送到
-  var nb = $('notifyBadge'), n = LS.get('tw.notifyBad', null);
-  if(n && typeof n.bad === 'number'){ nb.textContent = n.bad ? n.bad + ' 則沒送到' : '都送到了'; nb.className = n.bad ? 'okb warn' : 'okb'; }
-  else { nb.textContent = ''; nb.className = 'okb'; }
+  sum('dupSum', ng ? ng + ' 組' : '', 'okb warn');
+  var q = pendCount(), w = pendWaiting();                  // v98 背景辨識：辨識好等你確認的、沒辨識成功的、還在辨識的
+  sum('orgPendSum', q ? q + ' 張' : '', 'okb warn');
+  sum('orgPendMsg', w ? '還有 ' + w + ' 張在辨識，好了會告訴你' : '背景辨識完的截圖，看過再存入');
+  $('orgPend').hidden = !q && !w;
+  var todo = pend + ng + q;
+  sum('organizeSum', todo ? todo + ' 件要處理' : '', 'warn');
+  renderBell();
   renderUpdateCard();
 }
 /** 更新卡的標題：版本號；網站和後端版本不一樣就提醒（「上次部署」那行由 showDeployStatus 填） */
@@ -5071,29 +5261,77 @@ $('setCheckSite').onclick = function(){
   }).catch(function(err){ toast('檢查不到：' + (err.message || '連不上網站')); })
     .then(function(){ b.disabled = false; b.textContent = '檢查更新'; });
 };
-/* 子頁：分享紀錄、通知、連線與裝置（都疊在設定上面，返回就回到設定） */
-$('tlShares').onclick = function(){
+/* 子頁（v98）：分享（分享紀錄＋親友連結）、匯入與整理、通知與連線（右上角鈴鐺）。都疊在設定上面，返回就回到設定 */
+$('setShareHub').onclick = function(){
   $('shShares').hidden = false; $('shShares').scrollTop = 0;
-  if(CFG.api) $('setLoadShares').click();
+  renderHubMembers();
+  if(CFG.api){ $('setLoadShares').click(); loadMembers(); }
 };
-$('rwNotify').onclick = function(){
-  $('shNotify').hidden = false; $('shNotify').scrollTop = 0;
-  var d = $('setNotifyLog');
-  if(d.open) loadNotifyLog(); else d.open = true;      // 打開就會自己讀（toggle）
+$('setOrganize').onclick = function(){
+  $('shOrganize').hidden = false; $('shOrganize').scrollTop = 0;
+  renderSettingsSummary();
+  if(pendOn()) pendRefresh();
 };
-$('rwConn').onclick = function(){
+$('setBell').onclick = function(){ openConn(); };
+/** 通知與連線：focus = 要直接展開哪一格（conn 後端與存取碼、engine 辨識金鑰、link 分享短網址、sync 換到另一台裝置） */
+function openConn(focus){
   $('shConn').hidden = false; $('shConn').scrollTop = 0;
-  $('detConn').open = !CFG.api;
-};
+  $('detConn').open = !CFG.api || focus === 'conn';
+  renderStatus(); renderEngine(); renderLink();
+  $('detEngine').open = focus === 'engine';
+  $('detLink').open = focus === 'link';
+  if(focus === 'sync') $('setSync').open = true;
+  if(CFG.api) loadNotifyLog().then(function(){ renderStatus(); renderBell(); }, function(){});
+}
+
+/* ---------- v98 右上角鈴鐺：綠＝都正常、黃＝有事要看、紅＝連不到後端或分享連結壞了 ---------- */
+function bellState(){
+  if(!CFG.api) return '';
+  var c = LS.get(CONN_KEY, null) || {}, n = LS.get('tw.notifyBad', null), ls = linkState();
+  if((c.fail && (!c.okAt || c.fail.at > c.okAt)) || ls === 'broken' || ls === 'basewrong') return 'bad';
+  if(ENGINE_READY === false || (n && n.bad) || ls === 'off') return 'warn';
+  return 'ok';
+}
+function renderBell(){
+  var st = bellState(), d = $('bellDot');
+  d.hidden = !st; d.className = 'bdot' + (st && st !== 'ok' ? ' ' + st : '');
+  $('setBell').setAttribute('aria-label', '通知與連線' + (st === 'bad' ? '（有問題）' : st === 'warn' ? '（有事要看）' : ''));
+}
+/** 多久以前（剛剛、5 分鐘前、3 小時前、10/12） */
+function sinceText(ms){
+  var s = Math.round((Date.now() - ms) / 1000);
+  if(s < 60) return '剛剛';
+  if(s < 3600) return Math.round(s / 60) + ' 分鐘前';
+  if(s < 86400) return Math.round(s / 3600) + ' 小時前';
+  var d = new Date(ms); return (d.getMonth() + 1) + '/' + d.getDate();
+}
+/** 通知與連線最上面的「狀態」：後端、辨識、分享連結、通知，一行一個 */
+function renderStatus(){
+  var rows = [], c = LS.get(CONN_KEY, null) || {}, n = LS.get('tw.notifyBad', null);
+  function row(lv, name, val){ rows.push('<div class="st"><span class="dot ' + lv + '"></span><b>' + name + '</b><span class="stv">' + esc(val) + '</span></div>'); }
+  if(!CFG.api) row('warn', '後端', DEFAULT_API ? '網址填好了，還沒貼存取碼' : '還沒設定（目前是示範模式）');
+  else if(c.fail && (!c.okAt || c.fail.at > c.okAt)) row('bad', '後端', '連不到：' + c.fail.why);
+  else row('ok', '後端', c.okAt ? '已連線（' + sinceText(c.okAt) + '讀到）' : '已設定');
+  if(CFG.api){
+    row(ENGINE_READY === false ? 'warn' : 'ok', '辨識', ENGINE_READY === false ? '還沒設定金鑰，匯入不了截圖' : (ENGINE_NAME || '已設定'));
+    var ls = linkState();
+    row(ls === 'ok' ? 'ok' : ls === 'broken' || ls === 'basewrong' ? 'bad' : ls === 'unknown' || !ls ? 'off' : 'warn', '分享連結', LINK_TEXT[ls] || '還沒檢查');
+    row(!n ? 'off' : n.off ? 'off' : n.bad ? 'warn' : 'ok', '通知',
+        !n ? '還沒讀過紀錄' : n.off ? '沒設定 Discord（選用）' : n.bad ? '最近 ' + n.bad + ' 則沒送到' : '最近的都送到了');
+  }
+  $('stList').innerHTML = rows.join('');
+}
 /* ---------- v75 親友連結（設定 → 親友連結） ----------
    一個人一條長期連結：只看得到你挑的商家（以後新匯入的同一家也會出現）＋單張加的，減掉單張拿掉的；
    而且只有還能用的（分享給別人的、用掉的、過期的自動不出現）。他只能出示、按「我用掉了」。 */
 var mbList = null;     // 後端給的完整清單（含連結、看得到幾張）；null＝還沒讀到
 var mbEdit = null;     // 正在編輯的：{id, name, brands:{}, add:{}, drop:{}, open:{}}
+var mbFocus = '';      // v98：從「分享」頁點某一位進來，只顯示他那張卡（空白＝全部）
 
-function openMembers(){
+function openMembers(focusId){
   $('shMembers').hidden = false; $('shMembers').scrollTop = 0;
   mbEdit = null;
+  mbFocus = typeof focusId === 'string' ? focusId : '';
   renderMembers();
   loadMembers();
 }
@@ -5102,6 +5340,7 @@ function syncMembers(){
     return {id: m.id, name: m.name, brands: m.brands || [], addIds: m.addIds || [], dropIds: m.dropIds || []};
   });
   render(); scheduleListSave();
+  renderHubMembers(); renderSettingsSummary();                // v98：「分享」頁下半、設定頁那格跟著變
 }
 function loadMembers(){
   return api('members', {}).then(function(r){
@@ -5136,6 +5375,12 @@ function memberCardHTML(m){
     '</div></div>';
 }
 function renderMembers(){
+  var focus = mbFocus && memberFind(mbFocus);
+  if(focus){                                                   // v98：只顯示這一位
+    $('mbHead').textContent = focus.name;
+    $('mbBody').innerHTML = memberCardHTML(focus);
+    return;
+  }
   $('mbHead').textContent = '親友連結';
   var all = mbList || [];
   var live = all.filter(function(m){ return !m.revoked; }), off = all.filter(function(m){ return m.revoked; });
@@ -5272,7 +5517,7 @@ function saveMemberEdit(btn){
   var isNew = !e.id;
   api('memberSave', {member: {id: e.id, name: e.name, brands: brands, addIds: addIds, dropIds: dropIds}}).then(function(r){
     memberPut(r.member);
-    mbEdit = null; renderMembers();
+    mbEdit = null; mbFocus = r.member.id; renderMembers();     // v98：存好只顯示這一位，「傳給他」就在眼前
     toast(isNew ? '建好了，按「傳給他」把連結傳給 ' + r.member.name : '存好了，' + r.member.name + ' 重新整理就會看到');
   }).catch(function(err){
     btn.disabled = false; btn.textContent = isNew ? '建立連結' : '儲存';
@@ -5283,7 +5528,29 @@ $('mbBack').onclick = function(){
   if(mbEdit){ mbEdit = null; renderMembers(); return; }
   $('shMembers').hidden = true;
 };
-$('setMembers').onclick = openMembers;
+
+/* v98：「分享」頁下半的親友連結，一位一行；點了打開只有他那張卡（傳給他、複製、改挑選、停用） */
+function renderHubMembers(){
+  var box = $('hubMembers'), pad = 'padding:12px 16px;margin:0';
+  if(!CFG.api){ box.innerHTML = '<p class="note" style="' + pad + '">接上你的後端之後才能建立親友連結。</p>'; return; }
+  if(mbList === null){ box.innerHTML = '<p class="note" style="' + pad + '">讀取中…</p>'; return; }
+  var live = mbList.filter(function(m){ return !m.revoked; }), off = mbList.filter(function(m){ return m.revoked; });
+  box.innerHTML = (live.length ? live.map(hubMemberRow).join('')
+      : '<p class="note" style="' + pad + '">還沒有親友連結。給家人一條自己的連結，他只看得到你挑的商家。</p>') +
+    (off.length ? '<button class="sw" type="button" data-hub-off><span class="sw-t">已停用的 ' + off.length + ' 位</span><span class="sw-go">›</span></button>' : '');
+}
+function hubMemberRow(m){
+  var opened = m.openCount ? '開過 ' + m.openCount + ' 次' : '還沒打開過';
+  return '<button class="sw" type="button" data-hub-mid="' + esc(m.id) + '"><span class="av">' + esc(String(m.name || '?').slice(0, 1)) + '</span>' +
+    '<span class="sw-t">' + esc(m.name) + '<small>' + esc(((m.brands || []).join('、') || '單張挑選') + '　看得到 ' + (+m.count || 0) + ' 張・' + opened) + '</small></span>' +
+    '<span class="sw-go">›</span></button>';
+}
+$('hubMembers').addEventListener('click', function(e){
+  var b = e.target.closest('[data-hub-mid]');
+  if(b){ openMembers(b.dataset.hubMid); return; }
+  if(e.target.closest('[data-hub-off]')) openMembers();
+});
+$('hubAddMember').onclick = function(){ openMembers(); openMemberEdit(null); };
 
 /* ---------- 改名規則（v67） ----------
    規則放在試算表的 NameRules 分頁；這裡只負責「看有幾條」「貼上一批」「在試算表打開」。
@@ -5377,7 +5644,10 @@ function loadNotifyLog(){
   msg.textContent = '讀取中…'; box.innerHTML = '';
   return api('notifyLog', {}).then(function(r){
     var list = r.log || [], wait = r.queue || [], rem = r.reminder || {};
-    if(!r.discord && !r.line){ msg.textContent = '後端還沒設定 Discord（指令碼屬性 DISCORD_WEBHOOK）'; return; }
+    if(!r.discord && !r.line){
+      LS.set('tw.notifyBad', {off: true, at: Date.now()});     // v98：鈴鐺那頁的「狀態」寫「沒設定 Discord（選用）」
+      msg.textContent = '後端還沒設定 Discord（指令碼屬性 DISCORD_WEBHOOK）'; return;
+    }
     var bad = list.filter(function(x){ return !x.ok; }).length;
     LS.set('tw.notifyBad', {bad: bad, at: Date.now()});
     msg.textContent = !list.length && !wait.length ? '還沒有紀錄（從 v54 開始記，之後送出的通知才看得到）'
@@ -5482,8 +5752,11 @@ function shareRowHTML(s){
   // 對方還沒用、也還沒過期的有幾張，最快哪天到期（快到了就標紅）
   var left = (!dead && s.left) ? s.left : 0;
   var soonD = left && s.soon ? daysLeft(s.soon) : null;
-  return '<div class="srow' + (dead ? ' off' : '') + '" data-token="' + esc(s.token) + '">' +
-    '<h4>' + esc(s.to || '（沒填給誰）') + '</h4>' +
+  // v98：一條一行（給誰・幾張／失效日・開過幾次・用掉幾張），點開才是原本的詳細和按鈕
+  var line = [state, s.openCount ? '開過 ' + s.openCount + ' 次' : '', s.used ? '用掉 ' + s.used + ' 張' : ''].filter(Boolean).join('・');
+  return '<details class="srow' + (dead ? ' off' : '') + '" data-token="' + esc(s.token) + '">' +
+    '<summary><span class="srow-t"><b>給 ' + esc(s.to || '（沒填給誰）') + '・' + s.count + ' 張</b><small>' + esc(line) + '</small></span>' +
+      (!dead && !s.openCount ? '<span class="srow-w">還沒打開</span>' : '') + '<span class="sw-go">›</span></summary>' +
     '<div class="meta">' +
       esc(s.titles.join('、')) + (s.count > s.titles.length ? ' 等 ' + s.count + ' 張' : '（' + s.count + ' 張）') +
       '<br>用掉 <b>' + s.used + ' / ' + s.count + '</b>' +
@@ -5504,7 +5777,7 @@ function shareRowHTML(s){
       (s.url && !dead ? '<button data-act="open">開啟</button>' : '') +
       (dead ? '' : '<button data-act="revoke" class="danger">收回</button>') +
     '</div>' +
-  '</div>';
+  '</details>';
 }
 
 /** 自己按「開啟」看分享頁時加上 me=1，後端就不會把它算成對方打開過 */
@@ -5540,8 +5813,7 @@ function renderShares(){
   var rest = live.length - shown.length;
 
   $('shareList').innerHTML =
-    '<p class="note" style="margin:14px 0 10px">還在外面 <b>' + live.length + '</b> 個連結' +
-      (dead.length ? '，已結束 ' + dead.length + ' 個' : '') + '</p>' +
+    (live.length ? '' : '<p class="note" style="margin:4px 4px 0">外面沒有還能用的連結。</p>') +   // v98：幾條有效寫在標題右邊
     shown.map(shareRowHTML).join('') +
     (rest ? '<button type="button" class="more" id="shareMore">還有 ' + rest + ' 個' +
        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>' : '') +
@@ -5610,15 +5882,21 @@ $('setCopyLink').onclick = function(){
   navigator.clipboard.writeText(cfgLink()).then(function(){ toast('設定連結已複製'); },
     function(){ toast('複製失敗，請長按連結手動複製'); });
 };
-$('lnkSetup').onclick = function(){ $('btnSettings').click(); };
+$('lnkSetup').onclick = function(){
+  $('btnSettings').click();
+  if(DEFAULT_API){ openConn('conn'); setTimeout(function(){ $('setKey').focus(); }, 250); }   // v98：後端網址填好了，直接貼存取碼
+};
 $('setSave').onclick = function(){
+  var first = !CFG.api;
   CFG = {api: $('setApi').value.trim(), key: $('setKey').value.trim()};
   LS.set('tw.cfg', CFG);
   imgCache = {};
   $('shConn').hidden = true; $('shSettings').hidden = true;
   renderSync();
-  refresh().then(function(){ toast(DEMO() ? '已切回示範模式' : '已連上你的票券'); },
-    function(err){ toast(err.message); });
+  refresh().then(function(){
+    toast(DEMO() ? '已切回示範模式' : '已連上你的票券');
+    if(!DEMO() && first) setTimeout(firstRunNext, 900);   // v98：第一次接上 → 還差金鑰就請他貼；在電腦上就給手機掃的 QR
+  }, function(err){ toast(err.message); });
 };
 $('setTest').onclick = function(){
   var saved = CFG;
@@ -5633,6 +5911,394 @@ $('setTest').onclick = function(){
     msg.innerHTML = '<span style="color:var(--danger)">連線失敗</span>　' + esc(err.message);
   }).then(function(){ CFG = saved; });
 };
+
+/* ══════════════ v98：第一次設定、辨識金鑰、分享短網址自動檢查、先上傳背景辨識 ══════════════ */
+
+function isPhone(){ return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''); }
+function renderDemoBanner(){
+  var t = $('demoText'); if(!t) return;
+  t.innerHTML = DEFAULT_API
+    ? '網站已經接好你的後端，只差貼上<strong>存取碼（OWNER_KEY）</strong>就能用；下面是範例票券。'
+    : '目前是<strong>示範模式</strong>，下面都是範例票券，資料只存在這台裝置。接上你的 Google Sheets 後端後就會換成真實票券。';
+  $('lnkSetup').textContent = DEFAULT_API ? '貼上存取碼' : '前往設定';
+}
+/** 第一次接上之後的下一步：還沒有辨識金鑰就請他貼；在電腦上設定的，給手機掃的 QR */
+function firstRunNext(){
+  $('btnSettings').click();
+  if(ENGINE_READY === false){ openConn('engine'); toast('接好了！還差一步：貼上辨識金鑰'); return; }
+  if(!isPhone()){ openConn('sync'); toast('用手機掃這個 QR，手機就設定好了'); }
+}
+
+/* ---------- 辨識金鑰（通知與連線 → 辨識金鑰） ---------- */
+var ENG_PICK = 'gemini';
+function renderEngine(){
+  var d = $('detEngine');
+  d.hidden = !CFG.api || !(BACKEND_V >= 98);
+  if(d.hidden) return;
+  var miss = ENGINE_READY === false;
+  $('engSum').textContent = miss ? '還沒設定，匯入不了截圖' : ENGINE_NAME ? '用 ' + ENGINE_NAME + '，可以換' : '讀截圖用的';
+  $('engSum').className = miss ? 'warn' : '';
+  Array.prototype.forEach.call($('engPick').querySelectorAll('[data-eng]'), function(b){
+    b.setAttribute('aria-pressed', b.dataset.eng === ENG_PICK ? 'true' : 'false');
+  });
+  var g = ENG_PICK === 'gemini';
+  $('engLabel').textContent = g ? 'Gemini 金鑰（AIza 開頭）' : 'Claude 金鑰（sk-ant- 開頭）';
+  $('engKey').placeholder = g ? 'AIza…' : 'sk-ant-…';
+  $('engHelp').innerHTML = g
+    ? '匯入截圖時用它讀出商家、到期日和序號，個人用免費額度就夠。到 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>（用同一個 Google 帳號登入）按「建立 API 金鑰」（Create API key），複製 AIza 開頭的那一串貼在下面。'
+    : '比較準、要付費（約每張截圖 NT$0.1）。到 <a href="https://console.claude.com" target="_blank" rel="noopener">console.claude.com</a> 建立金鑰，複製 sk-ant- 開頭的那一串貼在下面。';
+}
+$('engPick').addEventListener('click', function(e){
+  var b = e.target.closest('[data-eng]'); if(!b) return;
+  ENG_PICK = b.dataset.eng; $('engMsg').textContent = ''; renderEngine();
+});
+$('engSave').onclick = function(){
+  var b = this, key = $('engKey').value.trim(), msg = $('engMsg');
+  if(!key){ msg.textContent = '先把金鑰貼在上面'; return; }
+  b.disabled = true; b.textContent = '確認金鑰中…'; msg.textContent = '';
+  api('setEngineKey', {engine: ENG_PICK, apiKey: key}, 60000).then(function(r){
+    ENGINE_READY = true; ENGINE_NAME = r.engine || ENGINE_NAME;
+    $('engKey').value = '';
+    msg.innerHTML = '<span style="color:var(--accent)">存好了</span>　辨識用 ' + esc(ENGINE_NAME) + (r.checked ? '（試過可以用）' : '（還沒能試，匯入一張看看）');
+    renderEngine(); renderStatus(); renderBell(); renderSetupBar();
+    if(!isPhone()){ $('setSync').open = true; toast('存好了！要在手機用：掃下面「換到另一台裝置」的 QR'); }
+    else toast('存好了，可以匯入截圖了');
+  }, function(err){
+    msg.innerHTML = '<span style="color:var(--danger)">沒存</span>　' + esc(err.message);
+  }).then(function(){ b.disabled = false; b.textContent = '儲存金鑰'; });
+};
+
+/* ---------- 分享短網址自動檢查 ----------
+   App 抓自己網站的 /s/test：_worker.js 有接上後端，會回後端的「這個分享連結不存在」頁。
+   再跟後端的 SHORT_BASE 對：有設 SHORT_BASE 但網站沒接上，分享出去的連結會打不開（列表上方黃條＋鈴鐺紅點）。
+   網站接上了、SHORT_BASE 還沒設 → 自動告訴後端用這個網站（setShortBase），不用再進指令碼屬性。 */
+var LINK_KEY = 'tw.linkchk';
+var LINK_TEXT = {ok: '短網址，正常', nobase: '網站接好了，還沒告訴後端', off: 'Google 長網址（可以改短）',
+                 broken: '打不開，要修', basewrong: '後端記的短網址格式不對', unknown: '檢查不到（網路不穩）'};
+/** _worker.js 那邊：ok 接上後端、unset 還不知道後端網址、none 沒有 _worker.js、badexec 記了後端但打不開、unknown 問不到 */
+function linkWorker(r){
+  if(!r || r.err) return 'unknown';
+  if(r.redirect) return 'badexec';
+  var t = String(r.text || '');
+  if(/還沒設定好/.test(t)) return 'unset';
+  if(r.status === 404 || /找不到這個頁面/.test(t)) return 'none';
+  if(/分享連結不存在|連結準備中|無法開啟|這個連結/.test(t)) return 'ok';
+  return 'unknown';
+}
+/** 加上後端的 SHORT_BASE 一起判斷（base 空白＝沒設，分享出去的是 Google 長網址） */
+function linkJudge(worker, base){
+  if(base && !/^https:\/\/[^\/?#]+\/s\/?$/.test(base)) return 'basewrong';
+  if(worker === 'unknown') return 'unknown';
+  if(worker === 'ok') return base ? 'ok' : 'nobase';
+  return base ? 'broken' : 'off';
+}
+function linkState(){ var c = LS.get(LINK_KEY, null); return c && c.st || ''; }
+function linkBaseNow(){
+  if(SRV_BASE !== null) return SRV_BASE;
+  var b = shareBase();                                   // 舊版後端沒回 SHORT_BASE：從分享過的連結推
+  return /^https:\/\/[^\/?#]+\/s\/?$/.test(b) ? b : '';
+}
+function linkProbe(){
+  return fetch(location.origin + '/s/test?t=' + Date.now(), {cache: 'no-store', redirect: 'manual'}).then(function(r){
+    if(r.type === 'opaqueredirect') return {redirect: true};
+    return r.text().then(function(t){ return {status: r.status, text: t}; });
+  }, function(e){ return {err: String((e && e.message) || e)}; });
+}
+function checkLink(force){
+  if(DEMO() || !window.fetch || location.protocol !== 'https:') return Promise.resolve(linkState());
+  var base = linkBaseNow(), c = LS.get(LINK_KEY, null);
+  if(!force && c && c.base === base && Date.now() - c.at < (c.st === 'ok' ? 24 * 3600e3 : 10 * 60e3)) return Promise.resolve(c.st);
+  return linkProbe().then(function(r){
+    var w = linkWorker(r), st = linkJudge(w, base);
+    LS.set(LINK_KEY, {at: Date.now(), st: st, worker: w, base: base});
+    if(st === 'nobase' && SRV_BASE === '' && BACKEND_V >= 98) return autoShortBase();
+    return st;
+  }).then(function(st){ renderLinkBits(); return st; });
+}
+function autoShortBase(){
+  return api('setShortBase', {base: location.origin + '/s/'}).then(function(r){
+    SRV_BASE = r.shortBase;
+    var st = linkJudge('ok', SRV_BASE);
+    LS.set(LINK_KEY, {at: Date.now(), st: st, worker: 'ok', base: SRV_BASE});
+    if(r.changed) toast('分享連結改用你的網站網址了（短網址）');
+    return st;
+  }, function(){ return 'nobase'; });
+}
+function renderLinkBits(){
+  renderBell(); renderSetupBar();
+  if(!$('shConn').hidden){ renderStatus(); renderLink(); }
+}
+function renderLink(){
+  var d = $('detLink');
+  d.hidden = !CFG.api;
+  if(d.hidden) return;
+  var c = LS.get(LINK_KEY, null) || {}, st = c.st || '', bad = st === 'broken' || st === 'basewrong';
+  $('linkBadge').textContent = st === 'ok' ? '正常' : bad ? '要修' : '';
+  $('linkBadge').className = 'okb' + (bad ? ' bad' : '');
+  $('linkSum').textContent = LINK_TEXT[st] || '還沒檢查';
+  var html = '';
+  if(st === 'ok'){
+    html = '<p class="note" style="margin:0 0 10px">分享出去的連結長這樣：<b>' + esc((SRV_BASE || linkBaseNow() || location.origin + '/s/') + '…') + '</b>，朋友打開不會碰到 Google 的錯誤頁。</p>';
+  } else if(st === 'nobase'){
+    html = '<p class="note" style="margin:0 0 10px">網站已經接上後端了，只差告訴後端用這個網址。' +
+      (BACKEND_V >= 98 ? '按下面「檢查一下」就會自動設好。' : '後端還是舊版：到 Apps Script「專案設定 → 指令碼屬性」新增 <code>SHORT_BASE</code>，值是 <b>' + esc(location.origin + '/s/') + '</b>。') + '</p>';
+  } else if(st === 'off' || st === 'broken' || st === 'basewrong'){
+    html = '<p class="note" style="margin:0 0 10px">' + (st === 'broken'
+        ? '<b>分享出去的連結現在打不開</b>：你的網站還不知道後端網址。照下面做一次就好：'
+        : st === 'basewrong'
+        ? '<b>後端記的分享短網址格式不對</b>（' + esc(c.base || '') + '），要是 <b>' + esc(location.origin + '/s/') + '</b>。到 Apps Script「專案設定 → 指令碼屬性」把 <code>SHORT_BASE</code> 改成這個（或刪掉，按「檢查一下」會自動設好）。'
+        : '現在分享出去的是 Google 的長網址：能用，但對方瀏覽器登入好幾個 Google 帳號時可能看到錯誤頁。改成短網址：') + '</p>' +
+      (st === 'basewrong' ? '' : linkGuideHTML(c.worker));
+    if(st === 'broken') html += '<p class="note" style="margin:10px 0 0">來不及修的話：到 Apps Script「專案設定 → 指令碼屬性」把 <code>SHORT_BASE</code> 刪掉，分享連結會先變回 Google 長網址。</p>';
+  } else if(st === 'unknown'){
+    html = '<p class="note" style="margin:0 0 10px">檢查不到：網路不穩，等一下再按「檢查一下」。</p>';
+  } else {
+    html = '<p class="note" style="margin:0 0 10px">還沒檢查過。</p>';
+  }
+  html += '<button class="btn ghost" id="linkCheck" type="button" style="width:100%;margin-top:10px">檢查一下</button>';
+  $('linkBody').innerHTML = html;
+  $('linkCheck').onclick = function(){
+    var b = this; b.disabled = true; b.textContent = '檢查中…';
+    checkLink(true).then(function(st){ toast('分享連結：' + (LINK_TEXT[st] || '檢查不到')); renderLink(); });
+  };
+  if($('linkKit')) $('linkKit').onclick = function(){ downloadMySite(this); };
+  Array.prototype.forEach.call($('linkBody').querySelectorAll('[data-copy]'), function(b){
+    b.onclick = function(){ copyText(b.dataset.copy === 'exec' ? CFG.api : 'EXEC_URL', b.dataset.copy === 'exec' ? '後端網址已複製' : '名稱已複製'); };
+  });
+}
+function linkGuideHTML(w){
+  return '<ol class="upd-steps">' +
+      '<li><b>最簡單</b>：按下面「下載填好的網站」，解壓縮後到 Cloudflare 你的 Pages 專案 → 右上角藍色「建立部署」→ 把 <b>web</b> 資料夾整個拖進去 → 部署。</li>' +
+      '<li>或是自己設定：同一個專案「設定 → 變數與機密 → ＋ 新增」，變數名稱 <code>EXEC_URL</code> <button class="btn ghost mini" type="button" data-copy="name">複製</button>，' +
+        '值是你的後端網址 <button class="btn ghost mini" type="button" data-copy="exec">複製</button> →「儲存」，再「建立部署」把 web 資料夾拖一次。</li>' +
+      '<li>做完回來按「檢查一下」。</li>' +
+    '</ol>' +
+    (w === 'badexec' ? '<p class="note" style="margin:0 0 10px">網站上記的後端網址打不開，多半是 EXEC_URL 貼錯了：用「下載填好的網站」最保險。</p>' : '') +
+    '<button class="btn primary" id="linkKit" type="button" style="width:100%">下載填好的網站</button>' +
+    '<p class="note" style="margin:8px 0 0">英文介面：Settings → Variables and Secrets → Add → Save；Create deployment</p>';
+}
+
+/* ---------- 下載「填好你後端網址的網站」（kitgen.js：在這個瀏覽器裡把站長網站上的朋友包解開、填好、再打包） ---------- */
+function kitUrl(){ try{ return new URL('download/tickets-kit.zip', RELEASE_URL).href; }catch(e){ return 'download/tickets-kit.zip'; } }
+function loadKitGen(){
+  if(window.KitGen) return Promise.resolve(window.KitGen);
+  return new Promise(function(res, rej){
+    var s = document.createElement('script');
+    s.src = 'kitgen.js?v=' + verNum(APP_VERSION);
+    s.onload = function(){ window.KitGen ? res(window.KitGen) : rej(new Error('網站產生器沒載入')); };
+    s.onerror = function(){ rej(new Error('網站產生器載不到，重新整理再試一次')); };
+    document.head.appendChild(s);
+  });
+}
+function downloadMySite(btn){
+  if(!CFG.api){ toast('先接上你的後端'); return Promise.resolve(); }
+  var label = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = '準備中…'; }
+  return loadKitGen().then(function(K){
+    return K.build(kitUrl(), CFG.api).then(function(blob){
+      K.save(blob, '票券網站.zip');
+      toast('下載好了：解壓縮後把 web 資料夾拖進 Cloudflare 的「建立部署」');
+    });
+  }).catch(function(e){ toast(e.message); })
+    .then(function(){ if(btn){ btn.disabled = false; btn.textContent = label; } });
+}
+
+/* ---------- 列表上方「還差一步」：沒有辨識金鑰、分享連結打不開 ---------- */
+var SETUP_GO = null;
+function renderSetupBar(){
+  var bar = $('setupBar');
+  if(DEMO()){ bar.hidden = true; return; }
+  var ls = linkState(), hideDay = LS.get('tw.linkHide', '');
+  if(ENGINE_READY === false && BACKEND_V >= 98){
+    $('setupText').innerHTML = '還差一步：貼上<b>辨識金鑰</b>，才能匯入截圖。';
+    $('setupGo').textContent = '去貼'; $('setupHide').hidden = true;
+    SETUP_GO = function(){ $('btnSettings').click(); openConn('engine'); };
+  } else if((ls === 'broken' || ls === 'basewrong') && hideDay !== todayISO()){
+    $('setupText').innerHTML = '<b>分享出去的連結現在打不開</b>：' + (ls === 'broken' ? '你的網站還不知道後端網址。' : '後端記的短網址格式不對。');
+    $('setupGo').textContent = '怎麼修'; $('setupHide').hidden = false;
+    SETUP_GO = function(){ $('btnSettings').click(); openConn('link'); };
+  } else { bar.hidden = true; return; }
+  bar.hidden = false;
+}
+$('setupGo').onclick = function(){ if(SETUP_GO) SETUP_GO(); };
+$('setupHide').onclick = function(){ LS.set('tw.linkHide', todayISO()); $('setupBar').hidden = true; };
+
+/* ---------- 先上傳、背景辨識（後端 v98 起） ----------
+   選好照片：每張縮好就傳（upload，一次兩張），傳完就能離開；後端在背景辨識，App 開著時用 recognize 催它。
+   辨識好的放在後端的「Pending」：列表上方「N 張辨識好了，確認後存入」，點進去就是原本的確認頁（openPendConfirm）。 */
+var PEND_COUNTS = null, PEND_ITEMS = [];
+var pendImg = {};                 // 剛傳上去的截圖先留在手機記憶體裡，確認頁不用再下載
+var pendTimer = null, pendKicking = false;
+function pendOn(){ return !DEMO() && BACKEND_V !== null && BACKEND_V >= 98; }
+function pendCounts(){ return PEND_COUNTS || {queued: 0, working: 0, done: 0, failed: 0, waiting: 0}; }
+function pendCount(){ var c = pendCounts(); return (c.done || 0) + (c.failed || 0); }
+function pendWaiting(){ return pendCounts().waiting || 0; }
+function pendSet(d){
+  if(d && d.counts) PEND_COUNTS = d.counts;
+  if(d && d.items) PEND_ITEMS = d.items;
+  renderPendBar(); renderSettingsSummary(); pendSchedule();
+}
+function pendRefresh(){
+  if(!pendOn()) return Promise.resolve();
+  return api('pending', {}).then(pendSet, function(){});
+}
+/** 催後端辨識（後端一次最多跑 80 秒，還沒做完就再催）；App 在背景就不催，交給後端的排程 */
+function pendKick(){
+  if(pendKicking || !pendOn() || document.hidden || !pendWaiting()) return;
+  pendKicking = true;
+  api('recognize', {}, 110000).then(function(r){ if(r && r.counts) PEND_COUNTS = r.counts; }, function(){})
+    .then(function(){ pendKicking = false; return pendRefresh(); })
+    .then(function(){ if(pendWaiting() && !document.hidden) pendKick(); });
+}
+/** 還有在辨識的：每 6 秒看一次進度 */
+function pendSchedule(){
+  clearTimeout(pendTimer);
+  if(pendWaiting() && !document.hidden) pendTimer = setTimeout(pendRefresh, 6000);
+}
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden && pendWaiting()){ pendRefresh(); pendKick(); }
+});
+function renderPendBar(){
+  var bar = $('pendBar'), c = pendCounts(), ok = c.done || 0, bad = c.failed || 0, w = c.waiting || 0;
+  if(!pendOn() || (!ok && !bad && !w)){ bar.hidden = true; return; }
+  $('pendText').innerHTML = w
+    ? '辨識中：還有 <b>' + w + '</b> 張' + (ok ? '，好了 ' + ok + ' 張' : '') + '…'
+    : (ok ? '<b>' + ok + '</b> 張辨識好了，確認後存入' : '') + (bad ? (ok ? '；' : '') + bad + ' 張沒辨識成功' : '');
+  $('pendGo').hidden = !ok && !bad;
+  $('pendGo').textContent = ok ? '確認後存入' : '查看';
+  bar.hidden = false;
+}
+$('pendGo').onclick = function(){ openPendConfirm(); };
+$('orgPend').onclick = function(){ openPendConfirm(); };
+
+/** 選好照片（v98）：只縮圖、上傳，傳完就能離開 */
+function runUpload(files){
+  holdAwake(true);
+  drafts = []; impFailed = [];
+  $('impHead').textContent = '上傳截圖';
+  $('shImport').hidden = false; $('shImport').scrollTop = 0;
+  $('impList').innerHTML = ''; $('impFail').hidden = true; $('impActions').hidden = true;
+  $('impProgress').hidden = false; $('impBar').style.width = '0%';
+  syncBarTop();
+  var N = files.length, i = 0, done = 0, active = 0, failed = [];
+  function status(){
+    $('impStatus').textContent = '上傳中 ' + done + ' / ' + N + ' 張（傳完就可以離開，辨識在背景跑）';
+    $('impBar').style.width = Math.round(done / N * 100) + '%';
+  }
+  return new Promise(function(resolve){
+    function next(){
+      if(i >= N){ if(!active) finish(); return; }
+      var f = files[i++]; active++;
+      shrink(f).then(function(dataUrl){
+        var comma = dataUrl.indexOf(',');
+        return api('upload', {image: dataUrl.slice(comma + 1), mime: 'image/jpeg', filename: f.name}, 60000)
+          .then(function(r){ pendImg[r.id] = dataUrl; });
+      }).catch(function(err){ failed.push({file: f, error: (err && err.message) || '不明錯誤'}); })
+        .then(function(){ active--; done++; status(); next(); });
+    }
+    function finish(){
+      holdAwake(false);
+      $('impProgress').hidden = true;
+      var ok = N - failed.length;
+      if(failed.length){
+        showFailed(failed);                                   // 「重試這幾張」一樣走 runImport → 這裡
+        $('impList').innerHTML = ok ? '<div class="empty"><strong>傳好 ' + ok + ' 張</strong>在背景辨識，好了會在列表上方告訴你。</div>' : '';
+      } else {
+        $('shImport').hidden = true;
+        toast('傳好 ' + ok + ' 張，在背景辨識；好了會在列表上方告訴你');
+      }
+      if(ok){
+        var c = pendCounts();
+        PEND_COUNTS = {queued: (c.queued || 0) + ok, working: c.working || 0, done: c.done || 0, failed: c.failed || 0, waiting: (c.waiting || 0) + ok};
+        renderPendBar(); renderSettingsSummary();
+        pendKick();
+      }
+      resolve();
+    }
+    status(); next(); next();                                 // 一次傳兩張
+  });
+}
+
+/** 確認頁（辨識好的）：跟以前一樣可以改、取消勾選，存完從 Pending 清掉 */
+function openPendConfirm(){
+  ['shSettings', 'shOrganize'].forEach(function(id){ $(id).hidden = true; });   // 確認頁疊在設定底下，先把設定收起來
+  return api('pending', {}).then(function(d){
+    pendSet(d);
+    var done = PEND_ITEMS.filter(function(x){ return x.state === 'done' && x.draft; });
+    var bad = PEND_ITEMS.filter(function(x){ return x.state === 'failed'; });
+    drafts = done.map(function(x){
+      return Object.assign({}, x.draft, {fileId: x.fileId, filename: x.filename, duplicate: x.duplicate, dupOf: x.dupOf,
+                                         pendId: x.id, dataUrl: pendImg[x.id] || ''});
+    });
+    impFailed = [];
+    $('impHead').textContent = '確認匯入內容';
+    $('impSave').textContent = '存入票券';
+    $('shImport').hidden = false; $('shImport').scrollTop = 0;
+    $('impProgress').hidden = true;
+    $('impActions').hidden = !drafts.length;
+    renderDrafts();
+    if(!drafts.length) $('impList').innerHTML = '<div class="empty"><strong>沒有辨識好的</strong>' + (pendWaiting() ? '還有 ' + pendWaiting() + ' 張在辨識，好了會在列表上方告訴你。' : '') + '</div>';
+    else if(pendWaiting()) $('impList').insertAdjacentHTML('afterbegin', '<p class="note" style="margin:0 0 10px">還有 ' + pendWaiting() + ' 張在辨識，好了會在列表上方告訴你；這幾張可以先存。</p>');
+    var again = drafts.filter(usedTwinSure).length;
+    if(again) toast(again + ' 張是已經用掉的券又匯入了：預設不存；要存的話會直接放進「已使用」');
+    showPendFailed(bad);
+    pendFillImages();
+  }).catch(function(e){ toast(e.message); });
+}
+function showPendFailed(bad){
+  var box = $('impFail');
+  if(!bad.length){ box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  box.innerHTML = '<strong>' + bad.length + ' 張沒有辨識成功</strong><ul>' + bad.map(function(x){
+      return '<li><span class="fn">' + esc(x.filename || '截圖') + '</span>' + esc(x.error || '') + '</li>';
+    }).join('') + '</ul>' +
+    '<div style="display:flex;gap:10px"><button type="button" class="btn" id="pendRetry">再辨識一次</button><button type="button" class="btn ghost" id="pendDrop">不要了</button></div>';
+  var ids = bad.map(function(x){ return x.id; });
+  $('pendRetry').onclick = function(){
+    this.disabled = true;
+    api('pendingRetry', {ids: ids}).then(function(d){ pendSet(d); box.hidden = true; toast('再辨識一次，好了會告訴你'); pendKick(); },
+      function(e){ toast(e.message); });
+  };
+  $('pendDrop').onclick = function(){
+    this.disabled = true;
+    api('pendingDone', {ids: [], discard: ids}).then(function(d){ pendSet(d); box.hidden = true; }, function(e){ toast(e.message); });
+  };
+}
+/** 確認頁上沒有截圖的（換了手機、App 重開過）：一張一張跟後端要 */
+function pendFillImages(){
+  var need = drafts.filter(function(d){ return d.pendId && !d.dataUrl; });
+  var chain = Promise.resolve();
+  need.forEach(function(d){
+    chain = chain.then(function(){
+      return api('pendImage', {id: d.pendId}).then(function(r){
+        if(!r || !r.dataUrl) return;
+        d.dataUrl = r.dataUrl; pendImg[d.pendId] = r.dataUrl;
+        var img = $('impList').querySelector('img[data-pend="' + d.pendId + '"]');
+        if(img) img.src = r.dataUrl;
+      }, function(){});
+    });
+  });
+  return chain;
+}
+/** 存完：存好的從 Pending 拿掉；沒勾的（不要的）也拿掉，截圖丟垃圾桶 */
+function pendDone(saved, skipped){
+  var ids = saved.map(function(j){ return j.pendId; }).filter(Boolean);
+  var drop = (skipped || []).map(function(x){ return x.pendId; }).filter(Boolean);
+  if(!ids.length && !drop.length) return Promise.resolve();
+  return api('pendingDone', {ids: ids, discard: drop}).then(function(d){
+    ids.concat(drop).forEach(function(id){ delete pendImg[id]; });
+    pendSet(d);
+  }, function(){});
+}
+
+/** 讀完清單之後（v98）：背景辨識的進度、分享短網址、還差一步的設定 */
+function afterListV98(){
+  renderSetupBar(); renderBell();
+  var c = pendCounts();
+  if(pendOn() && (c.done || c.failed || c.waiting)) pendRefresh().then(pendKick);
+  else renderPendBar();
+  setTimeout(function(){ checkLink(false); }, 4000);
+}
 
 /* ---------- 啟動 ---------- */
 /* v76 連線記錄＋自動重試：「目前離線」那條拿掉之後，讀不到清單就不再有任何痕跡，所以
@@ -5693,6 +6359,10 @@ function refresh(){
     TICKETS = applyQueue((d.tickets || []).slice());
     MEMBERS = Array.isArray(d.members) ? d.members : [];                 // v75 親友（列表上標「親友：…」用）
     BACKEND_V = typeof d.codeVersion === 'number' ? d.codeVersion : 0;   // 0 = 還沒有這個欄位的舊版後端
+    if(typeof d.engineReady === 'boolean') ENGINE_READY = d.engineReady; // v98：有沒有辨識金鑰、用哪個、SHORT_BASE、背景辨識的進度
+    if(d.engine) ENGINE_NAME = d.engine;
+    SRV_BASE = typeof d.shortBase === 'string' ? d.shortBase : null;
+    if(d.queue !== undefined) PEND_COUNTS = d.queue;
     TICKETS.some(function(t){ if(t.shareUrl && t.shareToken){ learnShareBase(t.shareUrl, t.shareToken); return true; } });   // v72：分享網址長什麼樣
     render();
     saveListCache();
@@ -5700,6 +6370,7 @@ function refresh(){
     flushQueue();
     flushShareQueue();                                   // v72：上次還沒存好的分享，補存
     setTimeout(prefetchImages, 1500);
+    afterListV98();                                      // v98：背景辨識的進度、分享短網址檢查、還差一步的設定
   }, function(err){ noteConn(false, err); throw err; });
 }
 
@@ -5905,7 +6576,8 @@ function openUpdate(){
       ? '<a class="btn primary" href="' + esc(dl) + '" target="_blank" rel="noopener" style="width:100%;margin:8px 0 6px">下載更新包</a>' +
         '<p class="note" style="margin:0 0 4px">更新要在電腦上做。手機上看到的話，把這個連結傳到電腦打開：</p>' +
         '<div class="linkbox mini" id="updLink">' + esc(dl) + '</div>' +
-        '<button class="btn ghost" id="updCopy" type="button" style="width:100%">複製下載連結</button>'
+        '<button class="btn ghost" id="updCopy" type="button" style="width:100%">複製下載連結</button>' +
+        (CFG.api ? '<button class="btn" id="updMySite" type="button" style="width:100%;margin-top:8px">只下載網站（已經填好你的後端網址）</button>' : '')
       : '') +
     notes +
     '<h3 class="upd-h" style="margin-top:22px">怎麼更新（在電腦上，大約 5 分鐘）</h3>' +
@@ -5913,11 +6585,13 @@ function openUpdate(){
       (newer ? '<li>' + (dl ? '按上面的「下載更新包」' : '跟分享給你的人拿新的更新包') + '，解壓縮</li>' : '') +
       '<li><b>後端</b>：打開 script.google.com 的「票券後端」，把 Code.gs 整份換成新的 → 儲存 →' +
         '「部署 → 管理部署作業 → 鉛筆 → 版本選「新版本」→ 部署」，網址不會變</li>' +
-      '<li><b>網站</b>：Cloudflare 你的 Pages 專案 →「Create new deployment」→ 把新的 web 資料夾整個拖進去 →「Deploy」</li>' +
+      '<li><b>網站</b>：Cloudflare 你的 Pages 專案 → 右上角藍色「建立部署」（英文介面 Create deployment）→ 把新的 web 資料夾整個拖進去 → 部署。' +
+        '用上面「只下載網站」拿到的 web 已經填好你的後端網址，不用另外設定</li>' +
       '<li>回到這裡：「設定」最下面按「強制更新到最新版」</li>' +
     '</ol>' +
     '<p class="note">兩邊都要更新。只做了一邊的話，App 最上面會提醒還差哪一邊。</p>';
   if($('updCopy')) $('updCopy').onclick = function(){ copyText(dl, '下載連結已複製'); };
+  if($('updMySite')) $('updMySite').onclick = function(){ downloadMySite(this); };   // v98
   $('shUpdate').hidden = false; $('shUpdate').scrollTop = 0;
 }
 
@@ -5951,7 +6625,7 @@ setTimeout(function(){ checkRelease(false); }, 2500);
 setTimeout(reportAppVersion, 3000);
 
 /* ---------- 版本與強制更新 ---------- */
-var APP_VERSION = 'ticket-wallet-v94';   // 跟 sw.js 的 VERSION、Code.gs 的 CODE_VERSION 一起改；release.json 的 latest 只在更新朋友包時才改（v73 起）
+var APP_VERSION = 'ticket-wallet-v98';   // 跟 sw.js 的 VERSION、Code.gs 的 CODE_VERSION 一起改；release.json 的 latest 只在更新朋友包時才改（v73 起）
 
 /** 最後一次從相簿分享進來時，系統實際送了什麼欄位過來 */
 function showShareDebug(){
@@ -6201,7 +6875,7 @@ $('offRetry').onclick = function(){
    按返回時退掉一格，我們就把最上面那一層關掉（跟按左上角的返回一樣），什麼都沒開就什麼都不做。
    靠 MutationObserver 看各層的 hidden，不用改每一個開關的地方。
    「一層」除了蓋在上面的畫面，還包括幾種狀態，按返回一次退一步：
-   ・放大圖放大中 → 縮回原大小　・多選（長按票券或點左邊色帶進入；v83 起沒有「選取」按鈕了）→ 取消全部勾選　・右上角 ＋ 的小選單開著 → 收起來　・搜尋框有字 → 清掉搜尋
+   ・放大圖放大中 → 縮回原大小　・多選（長按票券或點左邊色帶進入；v83 起沒有「選取」按鈕了）→ 取消全部勾選　・＋ 的小選單開著 → 收起來　・搜尋框有字 → 清掉搜尋
    ・詳情頁的編輯表單開著 → 收起來（不存）　・匯入／手動新增還沒存 → 第一次先提醒，5 秒內再按一次才放棄（右滑很容易誤觸）
    ・種類（早餐／主餐…）→ 回「全部」　・已結束底下的「已使用／已過期」→ 回「全部」　・商家頁籤 → 展開著先收回去、再按才回「全部」　・上面那排（30 天內到期、已分享…）→ 回「可用」
    ・列表捲到下面（超過 300px）→ 捲回最上面　・出示模式（兩張以上）滑到第 2 張之後 → 回第 1 張
@@ -6213,8 +6887,8 @@ $('offRetry').onclick = function(){
    v78 以前是每次按返回之後馬上補一格，補的那一刻不是使用者操作，站長 的 Android 手機上就在列表右滑被關掉了。
    現在每次點畫面都把擋板補滿（沒少就不放）；兩次點畫面之間右滑不超過 NAV_BUFFER 下就不會碰到底。
    設定 → 版本會記下補了幾次、收到幾次返回、最後一次的時間，萬一又被關掉，重開 App 看那一行就知道是哪一步。 */
-var NAV_LAYERS = ['addMenu','shDetail','shImport','shShare','shSettings','shShares','shNotify','shConn','shMembers','shUpdate','shDup','shBal','shGallery','shShow','shLbx','balPanel'];
-var NAV_ORDER = ['scroll','filter','sub','brand','cat','search','selecting','addMenu','shDetail','detailPos','dEdit','shImport','shShare','shSettings','shShares','shNotify','shConn','shMembers','shUpdate','shDup','shBal','shGallery','shShow','showPos','shLbx','lbxZoom','balPanel'];
+var NAV_LAYERS = ['addMenu','shDetail','shImport','shShare','shSettings','shOrganize','shShares','shConn','shMembers','shUpdate','shDup','shBal','shGallery','shShow','shLbx','balPanel'];
+var NAV_ORDER = ['scroll','filter','sub','brand','cat','search','selecting','addMenu','shDetail','detailPos','dEdit','shImport','shShare','shSettings','shOrganize','shShares','shConn','shMembers','shUpdate','shDup','shBal','shGallery','shShow','showPos','shLbx','lbxZoom','balPanel'];
 var NAV_FAR = 300;          // 列表捲超過幾 px，返回先捲回最上面
 var NAV_BUFFER = 30;        // 擋板一次放幾格（v80：8 → 30；站長 刻意連滑超過 8 下就被關掉了。Chrome 一個分頁的歷史上限 50 格）
 var NAV_DIAG_KEY = 'tw.navdiag';
@@ -6222,7 +6896,9 @@ var navStack = [];          // 開著的層，後開的在後面（最上面那�
 var navDepth = 0;           // 我們放的擋板，目前這一格下面還有幾格（0＝再退一次就是離開）
 var navTouched = false;     // 使用者點過畫面了（瀏覽器沒有 userActivation 時的備案）
 var navWarnAt = 0;          // 匯入還沒存、上次提醒的時間
-function importUnsaved(){ return drafts.length > 0 || !$('impProgress').hidden; }
+function importUnsaved(){                                   // v98：背景辨識好的（pendId）還留在後端，離開不會不見
+  return drafts.some(function(d){ return !d.pendId; }) || !$('impProgress').hidden;
+}
 function navActive(){
   try{ if(navigator.userActivation) return !!navigator.userActivation.hasBeenActive; }catch(e){}
   return navTouched;

@@ -1,6 +1,6 @@
 /* 票券 — 離線快取
    換版時把 VERSION 加一，舊快取就會被清掉。 */
-const VERSION = 'ticket-wallet-v94';
+const VERSION = 'ticket-wallet-v98';
 const SHARE_CACHE = 'tw-shared';       // 從相簿分享進來的圖，先寄放在這裡
 const SHELL = [
   './',
