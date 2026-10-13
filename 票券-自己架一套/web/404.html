@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>票券</title>
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F3F2F6;color:#111114;
+       font:15px/1.7 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;padding:24px}
+  .box{max-width:420px;text-align:center}
+  h1{font-size:22px;font-weight:900;margin:0 0 8px}
+  p{color:#4A4A55;margin:0 0 18px}
+  a{display:inline-block;padding:11px 22px;border-radius:999px;background:#2B1B40;color:#fff;
+    text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="box" id="go" hidden>
+  <h1>正在開啟分享連結…</h1>
+  <p>沒有自動跳轉的話，按下面這顆。</p>
+  <a id="golink" href="#">開啟票券</a>
+</div>
+<div class="box" id="box" hidden>
+  <h1>找不到這個頁面</h1>
+  <p>連結可能打錯了，或是這個分享連結已經失效。</p>
+  <a href="/">回票券</a>
+</div>
+<script>
+// 分享短網址 /s/<token>：轉到 Apps Script 的分享頁。
+// （_redirects 正常時根本不會走到這裡，這是備援。）
+(function(){
+  var EXEC = '在這裡貼上你的 /exec 網址';   // 備援用，可以不改（分享連結由 _worker.js 處理）
+  var m = /^\/s\/([A-Za-z0-9_-]{3,64})\/?$/.exec(location.pathname);
+  if(m && /^https:\/\/script\.google\.com\/.+\/exec$/.test(EXEC)){   // EXEC 還沒換成自己的網址就不跳
+    var to = EXEC + '?s=' + encodeURIComponent(m[1]);
+    document.getElementById('golink').href = to;
+    document.getElementById('go').hidden = false;
+    location.replace(to);
+    return;
+  }
+  document.getElementById('box').hidden = false;
+})();
+</script>
+</body>
+</html>
