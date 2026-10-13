@@ -11,9 +11,9 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>票券</title>
 <script>
-/* PERSONAL_UI：站長自己的版本——一律淺色（不管手機是不是深色模式），設定裡不顯示「外觀」和「改名規則」。
+/* PERSONAL_UI：Martin 自己的版本——一律淺色（不管手機是不是深色模式），設定裡不顯示「外觀」和「改名規則」。
    朋友包裡這一行是 false：照舊可以選深色，也看得到「改名規則」。
-   站長版想臨時看到「改名規則」：在這個網站的 localStorage 設 tw.rules = 1（Claude 要貼規則時用）。
+   Martin 版想臨時看到「改名規則」：在這個網站的 localStorage 設 tw.rules = 1（Claude 要貼規則時用）。
    放在最前面，是為了第一次畫面出來之前就已經是淺色，不會閃一下深色。 */
 var PERSONAL_UI = false;
 if(PERSONAL_UI) document.documentElement.setAttribute('data-theme', 'light');
@@ -563,7 +563,7 @@ body[data-selecting="1"] .tw > .tick{display:grid}
 .shot-skel{height:220px;display:grid;place-items:center;color:var(--ink-3);font-size:13px}
 
 /* v97 詳情頁上面的票卡：跟列表的精簡卡片一樣大（以前大字版約 170px 高，長截圖要往下滑才看得到條碼，
-   站長：「票券甚至看不到半張」）。序號、面額／數量照樣寫在最下面的資料裡。跟列表那一套數字一樣，改一邊要看另一邊 */
+   Martin：「票券甚至看不到半張」）。序號、面額／數量照樣寫在最下面的資料裡。跟列表那一套數字一樣，改一邊要看另一邊 */
 #dBody{padding-top:12px}
 .d-ticket{margin:0 0 12px}
 .d-ticket .tw:hover{filter:var(--drop)}
@@ -773,7 +773,7 @@ details.srow .meta{margin-top:10px}
 .srow-t b{display:block;font-size:16px;font-weight:900}
 .srow-t small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:2px}
 .srow-w{font-size:12.5px;font-weight:700;color:var(--warn);white-space:nowrap}
-/* v98 設定頁最下面的浮水印（站長 10/13 要的；朋友包也留著） */
+/* v98 設定頁最下面的浮水印（Martin 10/13 要的；朋友包也留著） */
 .credit{margin:72px 0 4px;text-align:center;font-size:13px;font-weight:600;letter-spacing:.18em;color:var(--ink-3);opacity:.7;user-select:none;pointer-events:none}
 .sw-t small.warn{color:var(--warn);font-weight:700}
 .btn.mini{display:inline-flex;width:auto;padding:3px 10px;font-size:12.5px;vertical-align:baseline;margin:0 2px}
@@ -1648,7 +1648,7 @@ var LS = {
   set: function(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
 };
 var CFG = LS.get('tw.cfg', {api:'', key:''});
-/* v98：網站產生器（kitgen.js）會把下面這行的空字串換成你的 /exec 網址，第一次打開只要貼存取碼。站長版空著 */
+/* v98：網站產生器（kitgen.js）會把下面這行的空字串換成你的 /exec 網址，第一次打開只要貼存取碼。Martin 版空著 */
 var DEFAULT_API = '';
 var ENGINE_READY = null, ENGINE_NAME = '', SRV_BASE = null;   // v98 後端回報：有沒有辨識金鑰、用哪個、SHORT_BASE（null＝還不知道）
 var DEMO = function(){ return !CFG.api; };
@@ -2042,7 +2042,7 @@ function brandOf(t){
 
 /* ---------- 店家小圖示（v81／v82） ----------
    有檔案的店用 brands/ 裡的 logo（自用，來源記在「店家圖示來源.txt」，離線快取由 sw.js 帶著）；
-   其他店用「第一個字＋品牌色」。v82 起星巴克、全聯、家樂福、SOGO、清心福全、萊爾富、Mister Donut 用 站長 自己截的圖
+   其他店用「第一個字＋品牌色」。v82 起星巴克、全聯、家樂福、SOGO、清心福全、萊爾富、Mister Donut 用 Martin 自己截的圖
    （.png，已經置中、背景變白、整張就是一個正方形，所以 p 都是 100%）。
    要換圖或加店：在這張表加一行，檔案丟進 web/brands/，再把檔名加進 sw.js 的 BRAND_FILES 和 deploy.js 的 WEB_FILES。
    key 是 brandOf 的結果：BRANDS 裡的店名，或 BRANDS 沒列、直接用票券上商家名稱的店（清心福全、Mister Donut、萬家福/樂家康）。
@@ -4221,7 +4221,7 @@ function openDetail(id){
       (t.note ? '<dt>備註</dt><dd>' + esc(t.note) + '</dd>' : '') +
       (t.usedAt ? '<dt>使用於</dt><dd class="num">' + esc(t.usedAt) + (validClock(t.usedTime) ? ' ' + esc(t.usedTime) : '') + (t.usedBy ? '（' + esc(t.usedBy) + '）' : '') + '</dd>' : '') +
     '</dl>' +
-    // v94：「標記已使用」「分享這張」搬到上面（dActHTML），這裡只留「複製序號」（站長：複製序號維持放在最下面）
+    // v94：「標記已使用」「分享這張」搬到上面（dActHTML），這裡只留「複製序號」（Martin：複製序號維持放在最下面）
     (t.code ? '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="dCopy">複製序號</button></div>' : '') +
     '<hr class="sep">' +
     '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
@@ -4343,7 +4343,7 @@ function openDetail(id){
     Object.assign(t, patch);
     if(next === 'used') justStamped = t.id;
     // v96：先改眼前這一頁（按鈕變色、蓋章、震一下），被蓋在底下的列表等這一頁畫出來再重畫（renderSoon）。
-    // 以前先重畫整個列表才輪到這一頁，手機上按鈕要等一下才變，站長：「不太確定我有沒有按到」
+    // 以前先重畫整個列表才輪到這一頁，手機上按鈕要等一下才變，Martin：「不太確定我有沒有按到」
     openDetail(t.id);
     justStamped = '';
     $('dUse').classList.add('just');
@@ -5556,7 +5556,7 @@ $('hubAddMember').onclick = function(){ openMembers(); openMemberEdit(null); };
    規則放在試算表的 NameRules 分頁；這裡只負責「看有幾條」「貼上一批」「在試算表打開」。
    套用是在後端匯入的時候做的（App 匯入、雲端硬碟上傳區都會）。 */
 var rulesUrl = '';
-// 站長版（PERSONAL_UI）設定裡不顯示「改名規則」（規則照常自動套用）；要貼規則時才臨時打開：localStorage tw.rules = 1
+// Martin 版（PERSONAL_UI）設定裡不顯示「改名規則」（規則照常自動套用）；要貼規則時才臨時打開：localStorage tw.rules = 1
 $('setRules').hidden = PERSONAL_UI && (function(){ try { return localStorage.getItem('tw.rules') !== '1'; } catch(e){ return true; } })();
 function loadRulesInfo(){
   var sum = $('rulesSum');
@@ -6078,7 +6078,7 @@ function linkGuideHTML(w){
     '<p class="note" style="margin:8px 0 0">英文介面：Settings → Variables and Secrets → Add → Save；Create deployment</p>';
 }
 
-/* ---------- 下載「填好你後端網址的網站」（kitgen.js：在這個瀏覽器裡把站長網站上的朋友包解開、填好、再打包） ---------- */
+/* ---------- 下載「填好你後端網址的網站」（kitgen.js：在這個瀏覽器裡把Martin 網站上的朋友包解開、填好、再打包） ---------- */
 function kitUrl(){ try{ return new URL('download/tickets-kit.zip', RELEASE_URL).href; }catch(e){ return 'download/tickets-kit.zip'; } }
 function loadKitGen(){
   if(window.KitGen) return Promise.resolve(window.KitGen);
@@ -6735,7 +6735,7 @@ function applyTheme(mode){
   document.head.appendChild(meta);
 }
 
-// 站長版（PERSONAL_UI）：一律淺色，不看之前存的選擇，設定裡也不顯示「外觀」
+// Martin 版（PERSONAL_UI）：一律淺色，不看之前存的選擇，設定裡也不顯示「外觀」
 var THEME = PERSONAL_UI ? 'light' : LS.get('tw.theme', 'auto');
 applyTheme(THEME);
 $('grpTheme').hidden = PERSONAL_UI;
@@ -6880,17 +6880,17 @@ $('offRetry').onclick = function(){
    ・種類（早餐／主餐…）→ 回「全部」　・已結束底下的「已使用／已過期」→ 回「全部」　・商家頁籤 → 展開著先收回去、再按才回「全部」　・上面那排（30 天內到期、已分享…）→ 回「可用」
    ・列表捲到下面（超過 300px）→ 捲回最上面　・出示模式（兩張以上）滑到第 2 張之後 → 回第 1 張
    ・詳情頁用「︿ 2 / 82 ﹀」切到別張之後 → 回進來時的那一張
-   什麼都沒有的時候（列表、預設檢視）：按返回什麼都不發生，App 不會被關掉（站長 10/8：「我根本沒有關掉 APP 的使用習慣」，也不要開關）。
+   什麼都沒有的時候（列表、預設檢視）：按返回什麼都不發生，App 不會被關掉（Martin 10/8：「我根本沒有關掉 APP 的使用習慣」，也不要開關）。
    要離開 App 用手機的首頁手勢；只有「第一次點過畫面之前」的返回（下面說的原因）還是會離開。
    v79：擋板一次放 NAV_BUFFER 格，而且**只在使用者點畫面的那一下放**（click），按返回的時候不放。
    為什麼：Chrome 不讓網頁在「使用者沒有操作」的情況下塞歷史記錄（會把留在原地的那一格標成「可略過」，按返回時就跳過它、直接離開）。
-   v78 以前是每次按返回之後馬上補一格，補的那一刻不是使用者操作，站長 的 Android 手機上就在列表右滑被關掉了。
+   v78 以前是每次按返回之後馬上補一格，補的那一刻不是使用者操作，Martin 的 Android 手機上就在列表右滑被關掉了。
    現在每次點畫面都把擋板補滿（沒少就不放）；兩次點畫面之間右滑不超過 NAV_BUFFER 下就不會碰到底。
    設定 → 版本會記下補了幾次、收到幾次返回、最後一次的時間，萬一又被關掉，重開 App 看那一行就知道是哪一步。 */
 var NAV_LAYERS = ['addMenu','shDetail','shImport','shShare','shSettings','shOrganize','shShares','shConn','shMembers','shUpdate','shDup','shBal','shGallery','shShow','shLbx','balPanel'];
 var NAV_ORDER = ['scroll','filter','sub','brand','cat','search','selecting','addMenu','shDetail','detailPos','dEdit','shImport','shShare','shSettings','shOrganize','shShares','shConn','shMembers','shUpdate','shDup','shBal','shGallery','shShow','showPos','shLbx','lbxZoom','balPanel'];
 var NAV_FAR = 300;          // 列表捲超過幾 px，返回先捲回最上面
-var NAV_BUFFER = 30;        // 擋板一次放幾格（v80：8 → 30；站長 刻意連滑超過 8 下就被關掉了。Chrome 一個分頁的歷史上限 50 格）
+var NAV_BUFFER = 30;        // 擋板一次放幾格（v80：8 → 30；Martin 刻意連滑超過 8 下就被關掉了。Chrome 一個分頁的歷史上限 50 格）
 var NAV_DIAG_KEY = 'tw.navdiag';
 var navStack = [];          // 開著的層，後開的在後面（最上面那層是最後一個）
 var navDepth = 0;           // 我們放的擋板，目前這一格下面還有幾格（0＝再退一次就是離開）

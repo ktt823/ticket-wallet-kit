@@ -6,7 +6,7 @@
  *  手機第一次打開時後端網址也已經填好，只要貼存取碼。
  *
  *  全部在這個瀏覽器裡做，/exec 網址不會傳到任何地方。
- *  用在兩個地方：站長網站上的 kit.html（第一次安裝），還有朋友 App 的「更新」「分享連結」頁（下載填好的新版網站）。
+ *  用在兩個地方：Martin 網站上的 kit.html（第一次安裝），還有朋友 App 的「更新」「分享連結」頁（下載填好的新版網站）。
  *
  *  KitGen.build(kitUrl, exec)  → Promise<Blob>（zip，裡面是 web/…）
  *  KitGen.readZip / makeZip / personalize 拆開來給測試用。
